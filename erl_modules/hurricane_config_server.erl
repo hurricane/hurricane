@@ -24,6 +24,7 @@ ensure_externals(Externals) ->
 loop(State) ->
     receive
         {_From, reload_config} ->
+            erlang:process_flag(trap_exit, true),
             ConfigPath = proplists:get_value(config_path, State),
             LoadConfigFun = proplists:get_value(load_config_fun, State),
             StateNoConfig = lists:keydelete(config, 1, State),
@@ -36,7 +37,6 @@ loop(State) ->
             From ! {config_for, Key, Value},
             NewState = State;
         Other ->
-            io:format(standard_error, "Unknown Message: ~p~n", [Other]),
             NewState = State
     end,
     loop(NewState).
