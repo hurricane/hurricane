@@ -2,7 +2,8 @@
 
 -export([get_config/1, start/1, start_process/1]).
 
-ensure_externals(Externals) ->
+ensure_externals(Externals, ExternalsTable) ->
+    OldPids = ets:match(ExternalsTable, {'$1', '_'}),
     lists:map(
         fun(External) ->
             Cmd = proplists:get_value(cmd, External),
@@ -13,12 +14,19 @@ ensure_externals(Externals) ->
             lists:map(
                 fun(_N) ->
                     Pid = erlang:spawn_link(Module, start, [Cmd]),
+                    ets:insert(ExternalsTable, {Pid, External}),
                     pg2:join(Name, Pid)
                 end,
                 lists:seq(1, Num)
             )
         end,
         Externals
+    ),
+    lists:map(
+        fun([OldPid]) ->
+            OldPid ! {terminate, erlang:self()}
+        end,
+        OldPids
     ).
 
 loop(State) ->
@@ -28,7 +36,10 @@ loop(State) ->
             LoadConfigFun = proplists:get_value(load_config_fun, State),
             StateNoConfig = lists:keydelete(config, 1, State),
             Config = erlang:apply(LoadConfigFun, [ConfigPath]),
-            ensure_externals(proplists:get_value(externals, Config, [])),
+            ensure_externals(
+                proplists:get_value(externals, Config, []),
+                proplists:get_value(externals_table, State)
+            ),
             NewState = [{config, Config} | StateNoConfig];
         {From, get_config, Key} ->
             Config = proplists:get_value(config, State, []),

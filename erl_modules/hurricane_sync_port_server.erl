@@ -25,6 +25,9 @@ recv_from_port(Port, TagStack) ->
 
 recv_next_req(Port) ->
     receive
+        {terminate, From} ->
+            io:format("~p hurricane_sync_port_server terminating...~n", [erlang:self()]),
+            erlang:exit(normal);
         {request, From, MessageTag, Message} ->
             io:format("~p -> ~p<~p> -> ~p ~p~n", [From, request, MessageTag, erlang:self(), Message]),
             erlang:port_command(
