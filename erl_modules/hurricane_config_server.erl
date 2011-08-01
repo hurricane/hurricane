@@ -1,6 +1,6 @@
 -module(hurricane_config_server).
 
--export([get_config/1, start/1, loop/1]).
+-export([get_config/1, start/1, start_process/1]).
 
 ensure_externals(Externals) ->
     lists:map(
@@ -24,7 +24,6 @@ ensure_externals(Externals) ->
 loop(State) ->
     receive
         {_From, reload_config} ->
-            erlang:process_flag(trap_exit, true),
             ConfigPath = proplists:get_value(config_path, State),
             LoadConfigFun = proplists:get_value(load_config_fun, State),
             StateNoConfig = lists:keydelete(config, 1, State),
@@ -36,9 +35,15 @@ loop(State) ->
             Value = proplists:get_value(Key, Config),
             From ! {config_for, Key, Value},
             NewState = State;
-        Other ->
+        _Other ->
             NewState = State
     end,
+    loop(NewState).
+
+start_process(State) ->
+    ExternalsTable = ets:new(externals_table, [set, private]),
+    erlang:process_flag(trap_exit, true),
+    NewState = [{externals_table, ExternalsTable} | State],
     loop(NewState).
 
 get_config(Key) ->
@@ -49,6 +54,6 @@ get_config(Key) ->
     Value.
 
 start(State) ->
-    Pid = erlang:spawn_link(hurricane_config_server, loop, [State]),
+    Pid = erlang:spawn_link(hurricane_config_server, start_process, [State]),
     erlang:register(hurricane_config_server, Pid),
     Pid ! {erlang:self(), reload_config}.
