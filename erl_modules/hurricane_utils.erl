@@ -12,6 +12,7 @@ get_best_pid(Name) ->
     end, pg2:get_members(Name)),
     SortedMembers = lists:keysort(2, lists:keysort(3, Members)),
     case SortedMembers of
+        [{Pid, _Messages, _StackSize}] -> Pid;
         [{Pid, _Messages, _StackSize}, _Tail] -> Pid;
         _ -> {error, empty_process_group}
     end.

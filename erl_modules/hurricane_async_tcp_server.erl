@@ -18,22 +18,31 @@ acceptor_loop(ListenSocket) ->
     ok = gen_tcp:controlling_process(Socket, Pid),
     acceptor_loop(ListenSocket).
 
-socket_loop(Socket) ->
-    receive
-        {tcp, _Port, Data} ->
-            {request, Destination, MessageTag, Message} = 
-                erlang:binary_to_term(Data),
+handle_tcp_data(Data) ->
+    case erlang:binary_to_term(Data) of
+        {RequestOrResponse, Destination, MessageTag, Message} ->
             case erlang:is_pid(Destination) of
                 true -> SendTo = Destination;
                 _    -> SendTo = hurricane_utils:get_best_pid(Destination)
             end,
-            io:format("~p <- ~p ~p<~p> ~p~n", [SendTo, erlang:self(), request, MessageTag, Message]),
-            SendTo ! {request, erlang:self(), MessageTag, Message};
-        {response, From, MessageTag, Message} ->
-            io:format("~p -> ~p ~p<~p> ~p~n", [From, erlang:self(), response, MessageTag, Message]),
+            io:format("~p <- ~p ~p<~p> ~p~n", [SendTo, erlang:self(), RequestOrResponse, MessageTag, Message]),
+            SendTo ! {RequestOrResponse, erlang:self(), MessageTag, Message};
+        {register_with_group, GroupName} ->
+            io:format("~p registering with group: ~p~n", [erlang:self(), GroupName]),
+            pg2:create(GroupName),
+            pg2:join(GroupName, erlang:self())
+    end.
+
+
+socket_loop(Socket) ->
+    receive
+        {tcp, _Port, Data} ->
+            handle_tcp_data(Data);
+        {RequestOrResponse, From, MessageTag, Message} ->
+            io:format("~p -> ~p ~p<~p> ~p~n", [From, erlang:self(), RequestOrResponse, MessageTag, Message]),
             gen_tcp:send(
                 Socket,
-                erlang:term_to_binary({response, From, MessageTag, Message})
+                erlang:term_to_binary({RequestOrResponse, From, MessageTag, Message})
             );
         {tcp_closed, Port} ->
             gen_tcp:close(Socket),
