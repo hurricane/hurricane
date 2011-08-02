@@ -4,8 +4,9 @@
 
 loop(Port, WaitingOnNum) ->
     receive
-        {terminate, From} when WaitingOnNum < 1 ->
+        {terminate, _From} when WaitingOnNum < 1 ->
             io:format("~p hurricane_async_port_server terminating...~n", [erlang:self()]),
+            NewWaitingOnNum = 0,
             erlang:exit(normal);
         {Port, {data, Data}} ->
             {RequestOrResponse, Destination, MessageType, Message} = 
@@ -30,7 +31,7 @@ loop(Port, WaitingOnNum) ->
             io:format("??? -> ~p ~p~n", [erlang:self(), Other]),
             NewWaitingOnNum = WaitingOnNum
     end,
-    loop(Port, WaitingOnNum).
+    loop(Port, NewWaitingOnNum).
 
 start(Cmd) ->
     Port = erlang:open_port({spawn, Cmd}, [{packet, 4}, exit_status, binary]),
