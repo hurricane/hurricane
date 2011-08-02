@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+import os
+import sys
+sys.path.append(
+    os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__))),
+    'drivers/python'))
 from erl_codec import Gateway, Atom
 import re
 

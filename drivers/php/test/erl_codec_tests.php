@@ -1,6 +1,6 @@
 <?php
 
-require 'erl_codec.php';
+require dirname(__FILE__) . '/../erl_codec.php';
 
 $decode_tests = array(
     array(

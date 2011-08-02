@@ -1,6 +1,6 @@
 <?php
 
-require 'erl_codec.php';
+require dirname(__FILE__) . '/../drivers/php/erl_codec.php';
 
 date_default_timezone_set('America/Denver');
 
