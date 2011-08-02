@@ -2,6 +2,9 @@
 
 -export([start/1]).
 
+open_port(Cmd) ->
+    erlang:open_port({spawn, Cmd}, [{packet, 4}, exit_status, binary]).
+
 handle_port_data(Data, TagStack) ->
     {Type, Destination, MessageTag, Message} = erlang:binary_to_term(Data),
     case erlang:is_pid(Destination) of
@@ -18,6 +21,10 @@ handle_port_data(Data, TagStack) ->
 
 recv_from_port(Port, TagStack) ->
     receive
+        {Port, {exit_status, _Code}} ->
+            io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            NewTagStack = TagStack,
+            erlang:exit(kill);
         {Port, {data, Data}} ->
             NewTagStack = handle_port_data(Data, TagStack)
     end,
@@ -25,6 +32,9 @@ recv_from_port(Port, TagStack) ->
 
 recv_next_req(Port) ->
     receive
+        {Port, {exit_status, _Code}} ->
+            io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            erlang:exit(kill);
         {terminate, _From} ->
             io:format("~p hurricane_sync_port_server terminating...~n", [erlang:self()]),
             erlang:exit(normal);
@@ -40,6 +50,10 @@ recv_next_req(Port) ->
 recv_next_step(Port, TagStack) ->
     ExpectedMessageTag = erlang:hd(TagStack),
     receive
+        {Port, {exit_status, _Code}} ->
+            io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            NewTagStack = TagStack,
+            erlang:exit(kill);
         {response, From, ExpectedMessageTag, Message} ->
             io:format("~p -> ~p<~p> -> ~p ~p~n", [From, response, ExpectedMessageTag, erlang:self(), Message]),
             erlang:port_command(
@@ -68,5 +82,5 @@ loop(Port, TagStack, PortReady) ->
     loop(Port, NewTagStack, NewPortReady).
 
 start(Cmd) ->
-    Port = erlang:open_port({spawn, Cmd}, [{packet, 4}, exit_status, binary]),
+    Port = open_port(Cmd),
     loop(Port, [], true).

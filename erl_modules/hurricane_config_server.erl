@@ -1,21 +1,26 @@
 -module(hurricane_config_server).
 
--export([get_config/1, start/1, start_process/1]).
+-export(
+    [get_config/1, start/1, start_process/1, get_external_definition/1]
+).
+
+start_external(External, ExternalsTable) ->
+    Name = proplists:get_value(name, External),
+    pg2:create(Name),
+    Cmd = proplists:get_value(cmd, External),
+    Module = proplists:get_value(module, External),
+    Pid = erlang:spawn_link(Module, start, [Cmd]),
+    ets:insert(ExternalsTable, {Pid, External}),
+    pg2:join(Name, Pid).
 
 ensure_externals(Externals, ExternalsTable) ->
     OldPids = ets:match(ExternalsTable, {'$1', '_'}),
     lists:map(
         fun(External) ->
-            Cmd = proplists:get_value(cmd, External),
             Num = proplists:get_value(num, External),
-            Name = proplists:get_value(name, External),
-            Module = proplists:get_value(module, External, sync),
-            pg2:create(Name),
             lists:map(
                 fun(_N) ->
-                    Pid = erlang:spawn_link(Module, start, [Cmd]),
-                    ets:insert(ExternalsTable, {Pid, External}),
-                    pg2:join(Name, Pid)
+                    start_external(External, ExternalsTable)
                 end,
                 lists:seq(1, Num)
             )
@@ -46,7 +51,20 @@ loop(State) ->
             Value = proplists:get_value(Key, Config),
             From ! {config_for, Key, Value},
             NewState = State;
+        {From, get_external_definition, ForPid} ->
+            ExternalDefinition = get_external_definition(State, ForPid),
+            From ! {external_definition_for, ForPid, ExternalDefinition},
+            NewState = State;
+        {'EXIT', Pid, Reason} ->
+            io:format("~p ~p, restarting...~n", [Pid, Reason]),
+            External = get_external_definition(State, Pid),
+            ExternalsTable = proplists:get_value(externals_table, State),
+            ets:delete(ExternalsTable, Pid),
+            start_external(External, ExternalsTable),
+            NewState = State,
+            ok;
         _Other ->
+            io:format("??? ~p~n", [_Other]),
             NewState = State
     end,
     loop(NewState).
@@ -61,6 +79,18 @@ get_config(Key) ->
     hurricane_config_server ! {erlang:self(), get_config, Key},
     receive
         {config_for, Key, Value} -> ok
+    end,
+    Value.
+
+get_external_definition(State, ForPid) ->
+    ExternalsTable = proplists:get_value(externals_table, State),
+    Definition = ets:match(ExternalsTable, {ForPid, '$1'}),
+    erlang:hd(erlang:hd(Definition)).
+
+get_external_definition(Pid) ->
+    hurricane_config_server ! {erlang:self(), get_external_definition, Pid},
+    receive
+        {external_definition_for, Pid, Value} -> ok
     end,
     Value.
 

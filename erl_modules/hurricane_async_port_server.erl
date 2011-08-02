@@ -2,8 +2,15 @@
 
 -export([start/1]).
 
+open_port(Cmd) ->
+    erlang:open_port({spawn, Cmd}, [{packet, 4}, exit_status, binary]).
+
 loop(Port, WaitingOnNum) ->
     receive
+        {Port, {exit_status, _Code}} ->
+            io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            NewWaitingOnNum = 0,
+            erlang:exit(kill);
         {terminate, _From} when WaitingOnNum < 1 ->
             io:format("~p hurricane_async_port_server terminating...~n", [erlang:self()]),
             NewWaitingOnNum = 0,
@@ -34,5 +41,5 @@ loop(Port, WaitingOnNum) ->
     loop(Port, NewWaitingOnNum).
 
 start(Cmd) ->
-    Port = erlang:open_port({spawn, Cmd}, [{packet, 4}, exit_status, binary]),
+    Port = open_port(Cmd),
     loop(Port, 0).
