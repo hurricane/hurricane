@@ -4,7 +4,7 @@ require dirname(__FILE__) . '/../drivers/php/erl_codec.php';
 
 date_default_timezone_set('America/Denver');
 
-$gateway = Erlang\Gateway::getInstance();
+$gateway = new Erlang\Gateway();
 while (true) {
     $message = $gateway->recv();
     $message->data[0] = new Erlang\Atom('response');

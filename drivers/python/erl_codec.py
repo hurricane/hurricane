@@ -1,3 +1,4 @@
+import socket
 from binascii import hexlify
 from struct import pack, unpack
 from collections import deque
@@ -37,6 +38,36 @@ class StreamEmulator(object):
     def clear(self):
         self.data = ''
         self.pos = 0
+
+class StdioWrapper(object):
+    def read(self, num):
+        return stdin.read(num)
+
+    def write(self, data):
+        return stdout.write(data)
+
+    def flush(self):
+        stdout.flush()
+
+    def close():
+        pass
+
+class SocketWrapper(object):
+    def __init__(self, host, port):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((host, port))
+
+    def read(self, num):
+        return self.socket.recv(num)
+
+    def write(self, data):
+        return self.socket.sendall(data)
+
+    def flush(self):
+        pass
+
+    def close():
+        self.socket.close()
 
 class AtomCacheRef(object):
     def __init__(self, value):
@@ -662,57 +693,40 @@ def encode(data, stream, send_magic_byte=True):
         raise ValueError('A %s is not Erlang serializable' % data_type)
 
 class Gateway:
-    in_handle = None
-    out_handle = None
-    stream_wrapper = None
+    stream = None
 
-    def __init__(self):
-        if not self.__class__.in_handle:
-            self.set_input(stdin)
-        if not self.__class__.out_handle:
-            self.set_output(stdout)
-        if not self.__class__.stream_wrapper:
-            self.__class__.stream_wrapper = StreamEmulator()
+    def __init__(self, stream=None):
+        if stream is None:
+            self.set_stream(StdioWrapper())
+        else:
+            self.set_stream(stream)
+        self.stream_wrapper = StreamEmulator()
 
-    def set_input(self, stream):
-        self.close_input()
+    def set_stream(self, stream):
+        self.close()
+        self.stream = stream
 
-        if type(stream) == str:
-            stream = open(stream, 'r')
-        self.__class__.in_handle = stream
-
-    def set_output(self, stream):
-        self.close_output()
-
-        if type(stream) == str:
-            stream = open(stream, 'w')
-        self.__class__.out_handle = stream
-
-    def close_input(self):
-        if self.__class__.in_handle:
-            self.__class__.in_handle.close()
-
-    def close_output(self):
-        if self.__class__.out_handle:
-            self.__class__.out_handle.close()
+    def close(self):
+        if self.stream:
+            self.stream.close()
 
     def recv(self):
-        message_len = self.__class__.in_handle.read(4)
+        message_len = self.stream.read(4)
 
         if len(message_len) < 4:
             raise ValueError('Message size payload should be 4 bytes')
 
         message_len, = unpack('>L', message_len)
-        self.__class__.stream_wrapper.clear()
-        self.__class__.stream_wrapper.write(
-            self.__class__.in_handle.read(message_len))
-        message = decode(self.__class__.stream_wrapper)
+        self.stream_wrapper.clear()
+        self.stream_wrapper.write(
+            self.stream.read(message_len))
+        message = decode(self.stream_wrapper)
         return message
 
     def send(self, message):
-        self.__class__.stream_wrapper.clear()
-        encode(message, self.__class__.stream_wrapper)
-        self.__class__.out_handle.write(
-            pack('>L', len(self.__class__.stream_wrapper.data)))
-        self.__class__.out_handle.write(self.__class__.stream_wrapper.data)
-        self.__class__.out_handle.flush()
+        self.stream_wrapper.clear()
+        encode(message, self.stream_wrapper)
+        self.stream.write(
+            pack('>L', len(self.stream_wrapper.data)))
+        self.stream.write(self.stream_wrapper.data)
+        self.stream.flush()

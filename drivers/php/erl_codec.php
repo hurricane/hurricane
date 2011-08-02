@@ -699,75 +699,111 @@ function from_binary($input) {
     return $output;
 }
 
+class SocketWrapper {
+    private $socket;
+
+    public function __construct($host, $port) {
+        $this->socket = socket_create(
+            AF_INET, SOCK_STREAM, getprotobyname('tcp')
+        );
+        socket_connect($this->socket, $host, $port);
+    }
+
+    public function __destruct() {
+        $this->close();
+    }
+
+    public function read($num) {
+        return socket_read($this->socket, $num);
+    }
+
+    public function write($data) {
+        return socket_write($this->socket, $data);
+    }
+
+    public function flush() {
+    }
+
+    public function close() {
+        socket_close($this->socket);
+    }
+}
+
+class StdioWrapper {
+    private $in;
+    private $out;
+
+    public function __construct() {
+        $this->in = fopen('php://stdin', 'r');
+        $this->out = fopen('php://stdout', 'w');
+    }
+
+    public function __destruct() {
+        $this->close();
+    }
+
+    public function read($num) {
+        return fread($this->in, $num);
+    }
+
+    public function write($data) {
+        return fwrite($this->out, $data);
+    }
+
+    public function flush() {
+        fflush($this->out);
+    }
+
+    public function close() {
+        fclose($this->in);
+        fclose($this->out);
+    }
+}
+
 class Gateway {
-    private static $instance;
-    private static $in_handle;
-    private static $out_handle;
-    private static $stream_wrapper;
+    private $stream;
+    private $stream_wrapper;
 
-    private function __construct() {
-        self::setInput('php://stdin');
-        self::setOutput('php://stdout');
-        self::$stream_wrapper = new StreamEmulator();
-    }
-
-    public function getInstance() {
-        if (!self::$instance) {
-            self::$instance = new Gateway();
+    public function __construct($stream=null) {
+        if ($stream) {
+            $this->setStream($stream);
+        } else {
+            $this->setStream(new StdioWrapper());
         }
-        return self::$instance;
+        $this->stream_wrapper = new StreamEmulator();
     }
 
-    public static function setInput($stream) {
-        self::closeInput();
-
-        if (is_string($stream)) {
-            $stream = fopen($stream, 'r');
-        }
-        self::$in_handle = $stream;
+    public function setStream($stream) {
+        $this->close();
+        $this->stream = $stream;
     }
 
-    public static function setOutput($stream) {
-        self::closeOutput();
-
-        if (is_string($stream)) {
-            $stream = fopen($stream, 'w');
-        }
-        self::$out_handle = $stream;
-    }
-
-    private static function closeInput() {
-        if (self::$in_handle) {
-            fclose(self::$in_handle);
-        }
-    }
-
-    private static function closeOutput() {
-        if (self::$out_handle) {
-            fclose(self::$out_handle);
+    private function close() {
+        if ($this->stream) {
+            $this->stream->close();
         }
     }
 
     public function recv() {
-        $message_len = fread(self::$in_handle, 4);
+        $message_len = $this->stream->read(4);
 
         if (strlen($message_len) < 4) {
             throw new Exception('Message size payload should be 4 bytes');
         }
 
         $message_len = reset(unpack('N', $message_len));
-        self::$stream_wrapper->clear();
-        self::$stream_wrapper->write(fread(self::$in_handle, $message_len));
-        $message = decode(self::$stream_wrapper);
+        $this->stream_wrapper->clear();
+        $this->stream_wrapper->write($this->stream->read($message_len));
+        $message = decode($this->stream_wrapper);
         return $message;
     }
 
     public function send($message) {
-        self::$stream_wrapper->clear();
-        encode($message, self::$stream_wrapper);
-        fwrite(self::$out_handle, pack('N', strlen(self::$stream_wrapper->data)));
-        fwrite(self::$out_handle, self::$stream_wrapper->data);
-        fflush(self::$out_handle);
+        $this->stream_wrapper->clear();
+        encode($message, $this->stream_wrapper);
+        $this->stream->write(pack('N', strlen($this->stream_wrapper->data)));
+        $this->stream->write($this->stream_wrapper->data);
+        $this->stream->flush();
     }
 }
 
