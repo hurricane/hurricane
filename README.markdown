@@ -19,9 +19,10 @@ messaging/data-retrieval completely transparently.
 Next Steps:
 -----------
 
-- Build better config/management of external processes
-- Handle failures in external processes by restarting them
-- Create an official logging facility (instead of print statements)
+- Allow configurable timeouts per-spawned-process
 - Add drivers for more languages (Go and Java support is next)
+- Create an official logging facility (instead of print statements)
+- Create a sync tcp server (for scatter-gather)
 - Build out multi-node distribution (connecting Hurricane instances
   together)
+- Build administrative interface for external processes
