@@ -36,6 +36,7 @@ socket_loop(Socket) ->
                 erlang:term_to_binary({response, From, MessageTag, Message})
             );
         {tcp_closed, Port} ->
+            gen_tcp:close(Socket),
             io:format("~p (~p), closed, dying...~n", [Port, erlang:self()]),
             erlang:exit(kill);
         Other ->
