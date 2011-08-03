@@ -1,0 +1,57 @@
+package org.hurricane.driver;
+
+import java.util.ArrayList;
+import org.hurricane.driver.StreamInterface;
+
+public class StreamEmulator implements StreamInterface {
+    public ArrayList<Byte> mBuffer;
+    public int mPos;
+
+    public StreamEmulator() {
+        clear();
+    }
+
+    public StreamEmulator(byte[] data) {
+        clear(data.length);
+        write(data);
+    }
+
+    public byte[] read(int bytes) {
+        if (mBuffer.size() < mPos + bytes) {
+            throw new ArrayIndexOutOfBoundsException(
+                "Out of data to read (was asked for " + bytes +
+                " bytes(s), only " + (mBuffer.size() - mPos) + 
+                " bytes(s) remain)");
+        }
+
+        byte[] rawBytes = new byte[bytes];
+        for (int i = 0; i < bytes; i++) {
+            rawBytes[i] = mBuffer.get(mPos);
+            mPos++;
+        }
+        return rawBytes;
+    }
+
+    public void write(byte[] data) {
+        mBuffer.ensureCapacity(mBuffer.size() + data.length);
+        for (int i = 0; i < data.length; i++) {
+            mBuffer.add((Byte) data[i]);
+        }
+    }
+
+    public void flush() {
+    }
+
+    public void clear() {
+        mBuffer = new ArrayList<Byte>();
+        mPos = 0;
+    }
+
+    public void clear(int initialCapacity) {
+        mBuffer = new ArrayList<Byte>(initialCapacity);
+        mPos = 0;
+    }
+
+    public void close() {
+    }
+}
