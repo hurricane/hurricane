@@ -1,4 +1,6 @@
 *.pyc
 *.swp
 *.beam
+*.jar
+*.class
 erl_crash.dump
