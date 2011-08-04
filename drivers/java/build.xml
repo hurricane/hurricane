@@ -8,7 +8,9 @@
   </target>
   <target name="compile" description="compile the Java source code to class files">
     <mkdir dir="classes"/>
-    <javac srcdir="src" destdir="classes"/>
+    <javac srcdir="src" destdir="classes">
+      <compilerarg value="-Xlint"/>
+    </javac>
   </target>
   <target name="jar" depends="compile" description="create a Jar file for the application">
     <jar destfile="java-erlang-driver.jar">

@@ -254,6 +254,7 @@ public class Encoder {
         encode(data, stream, true);
     }
 
+    @SuppressWarnings("unchecked")
     public static void encode(Object data, StreamInterface stream, Boolean sendMagicByte) throws UnsupportedOperationException, IOException {
         if (sendMagicByte) {
             stream.write(Utils.toBytes(131));
