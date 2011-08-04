@@ -3,6 +3,7 @@ package org.hurricane.driver;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.math.BigInteger;
+import org.hurricane.driver.Utils;
 import org.hurricane.driver.StreamInterface;
 import org.hurricane.driver.datatypes.AtomCacheRef;
 import org.hurricane.driver.datatypes.Atom;
@@ -19,16 +20,6 @@ import org.hurricane.driver.datatypes.NewReference;
 import org.hurricane.driver.datatypes.BitBinary;
 
 public class Decoder {
-    public static Long unpackNumber(byte[] bytes) {
-        Long value = 0L;
-        Integer shift = 0;
-        for (Integer i = bytes.length - 1; i >= 0; i--) {
-            value |= (bytes[i] & 0xff) << (shift * 8);
-            shift++;
-        }
-        return value;
-    }
-
     public static AtomCacheRef decodeAtomCacheRef(StreamInterface stream) throws IOException {
         return new AtomCacheRef(stream.read(1)[0]);
     }
@@ -38,7 +29,7 @@ public class Decoder {
     }
 
     public static Integer decodeIntegerExt(StreamInterface stream) throws IOException {
-        return unpackNumber(stream.read(4)).intValue();
+        return Utils.unpackNumber(stream.read(4)).intValue();
     }
 
     public static Double decodeFloatExt(StreamInterface stream) throws IOException {
@@ -46,34 +37,34 @@ public class Decoder {
     }
 
     public static Atom decodeAtomExt(StreamInterface stream) throws IOException {
-        Integer atom_len = unpackNumber(stream.read(2)).intValue();
+        Integer atom_len = Utils.unpackNumber(stream.read(2)).intValue();
         return new Atom(new String(stream.read(atom_len)));
     }
 
     public static Reference decodeReferenceExt(StreamInterface stream) throws IOException {
         Atom atom = (Atom) decode(stream, false);
-        Integer identifier = unpackNumber(stream.read(4)).intValue();
+        Integer identifier = Utils.unpackNumber(stream.read(4)).intValue();
         Byte creation = stream.read(1)[0];
         return new Reference(atom, identifier, creation);
     }
 
     public static Port decodePortExt(StreamInterface stream) throws IOException {
         Atom atom = (Atom) decode(stream, false);
-        Integer identifier = unpackNumber(stream.read(4)).intValue();
+        Integer identifier = Utils.unpackNumber(stream.read(4)).intValue();
         Byte creation = stream.read(1)[0];
         return new Port(atom, identifier, creation);
     }
 
     public static Pid decodePidExt(StreamInterface stream) throws IOException {
         Atom atom = (Atom) decode(stream, false);
-        Integer identifier = unpackNumber(stream.read(4)).intValue();
-        Integer serial = unpackNumber(stream.read(4)).intValue();
+        Integer identifier = Utils.unpackNumber(stream.read(4)).intValue();
+        Integer serial = Utils.unpackNumber(stream.read(4)).intValue();
         Byte creation = stream.read(1)[0];
         return new Pid(atom, identifier, serial, creation);
     }
 
     public static Tuple decodeSmallTupleExt(StreamInterface stream) throws IOException {
-        Short tupleLen = unpackNumber(stream.read(1)).shortValue();
+        Short tupleLen = Utils.unpackNumber(stream.read(1)).shortValue();
         Tuple tuple = new Tuple(tupleLen.intValue());
         Object element;
         for (int i = 0; i < tupleLen; i++) {
@@ -84,7 +75,7 @@ public class Decoder {
     }
 
     public static Tuple decodeLargeTupleExt(StreamInterface stream) throws IOException {
-        Integer tupleLen = unpackNumber(stream.read(4)).intValue();
+        Integer tupleLen = Utils.unpackNumber(stream.read(4)).intValue();
         Tuple tuple = new Tuple(tupleLen);
         Object element;
         for (int i = 0; i < tupleLen; i++) {
@@ -99,12 +90,12 @@ public class Decoder {
     }
 
     public static String decodeStringExt(StreamInterface stream) throws IOException {
-        Integer strLen = unpackNumber(stream.read(2)).intValue();
+        Integer strLen = Utils.unpackNumber(stream.read(2)).intValue();
         return new String(stream.read(strLen));
     }
 
     public static Object decodeListExt(StreamInterface stream) throws IOException {
-        Integer listLen = unpackNumber(stream.read(4)).intValue();
+        Integer listLen = Utils.unpackNumber(stream.read(4)).intValue();
         ArrayList<Object> list = new ArrayList<Object>(listLen);
         Object value;
         Boolean isStr = true;
@@ -130,21 +121,15 @@ public class Decoder {
     }
 
     public static Binary decodeBinaryExt(StreamInterface stream) throws IOException {
-        Integer binLen = unpackNumber(stream.read(4)).intValue();
+        Integer binLen = Utils.unpackNumber(stream.read(4)).intValue();
         return new Binary(stream.read(binLen));
     }
 
     public static BigInteger decodeSmallBigExt(StreamInterface stream) throws IOException {
-        BigInteger value = new BigInteger("0");
-        Short numBytes = unpackNumber(stream.read(1)).shortValue();
-        Byte sign = unpackNumber(stream.read(1)).byteValue();
-        Integer current;
-        BigInteger plus;
-        for (Integer i = 0; i < numBytes; i++) {
-            current = unpackNumber(stream.read(1)).intValue();
-            plus = new BigInteger(current.toString()).multiply(new BigInteger("256").pow(i));
-            value = value.add(plus);
-        }
+        Short numBytes = Utils.unpackNumber(stream.read(1)).shortValue();
+        Byte sign = Utils.unpackNumber(stream.read(1)).byteValue();
+        byte[] bytes = stream.read(numBytes);
+        BigInteger value = new BigInteger(Utils.reverseBytes(bytes));
         if (sign == 1) {
             value = value.multiply(new BigInteger(new String("-1")));
         }
@@ -152,16 +137,10 @@ public class Decoder {
     }
 
     public static BigInteger decodeLargeBigExt(StreamInterface stream) throws IOException {
-        BigInteger value = new BigInteger("0");
-        Long numBytes = unpackNumber(stream.read(4));
-        Byte sign = unpackNumber(stream.read(1)).byteValue();
-        Integer current;
-        BigInteger plus;
-        for (Integer i = 0; i < numBytes; i++) {
-            current = unpackNumber(stream.read(1)).intValue();
-            plus = new BigInteger(current.toString()).multiply(new BigInteger("256").pow(i));
-            value = value.add(plus);
-        }
+        Long numBytes = Utils.unpackNumber(stream.read(4));
+        Byte sign = Utils.unpackNumber(stream.read(1)).byteValue();
+        byte[] bytes = stream.read(numBytes.intValue());
+        BigInteger value = new BigInteger(Utils.reverseBytes(bytes));
         if (sign == 1) {
             value = value.multiply(new BigInteger(new String("-1")));
         }
@@ -169,11 +148,11 @@ public class Decoder {
     }
 
     public static NewFunction decodeNewFunExt(StreamInterface stream) throws IOException {
-        Long size = unpackNumber(stream.read(4));
-        Byte arity = unpackNumber(stream.read(1)).byteValue();
+        Long size = Utils.unpackNumber(stream.read(4));
+        Byte arity = Utils.unpackNumber(stream.read(1)).byteValue();
         String uniq = new String(stream.read(16));
-        Integer index = unpackNumber(stream.read(4)).intValue();
-        Long numFree = unpackNumber(stream.read(4));
+        Integer index = Utils.unpackNumber(stream.read(4)).intValue();
+        Long numFree = Utils.unpackNumber(stream.read(4));
         Object module = decode(stream, false);
         Object oldIndex = decode(stream, false);
         Object oldUniq = decode(stream, false);
@@ -192,13 +171,13 @@ public class Decoder {
     }
 
     public static Atom decodeSmallAtomExt(StreamInterface stream) throws IOException {
-        Integer atomLen = unpackNumber(stream.read(1)).intValue();
+        Integer atomLen = Utils.unpackNumber(stream.read(1)).intValue();
         String atomName = new String(stream.read(atomLen));
         return new Atom(atomName);
     }
 
     public static ErlFunction decodeFunExt(StreamInterface stream) throws IOException {
-        Long numFree = unpackNumber(stream.read(4));
+        Long numFree = Utils.unpackNumber(stream.read(4));
         Pid pid = (Pid) decode(stream, false);
         Object module = decode(stream, false);
         Object index = decode(stream, false);
@@ -225,12 +204,12 @@ public class Decoder {
     }
 
     public static NewReference decodeNewReferenceExt(StreamInterface stream) throws IOException {
-        Integer length = unpackNumber(stream.read(2)).intValue();
+        Integer length = Utils.unpackNumber(stream.read(2)).intValue();
         Object atom = decode(stream, false);
-        Byte creation = unpackNumber(stream.read(1)).byteValue();
+        Byte creation = Utils.unpackNumber(stream.read(1)).byteValue();
         Integer[] revIds = new Integer[length];
         for (Integer i = 0; i < length; i++) {
-            revIds[i] = unpackNumber(stream.read(4)).intValue();
+            revIds[i] = Utils.unpackNumber(stream.read(4)).intValue();
         }
         ArrayList<Integer> identifiers = new ArrayList<Integer>(length);
         for (Integer i = length - 1; i >= 0; i--) {
@@ -240,15 +219,15 @@ public class Decoder {
     }
 
     public static BitBinary decodeBitBinaryExt(StreamInterface stream) throws IOException {
-        Integer length = unpackNumber(stream.read(4)).intValue();
+        Integer length = Utils.unpackNumber(stream.read(4)).intValue();
         return new BitBinary(
-            unpackNumber(stream.read(1)).byteValue(),
+            Utils.unpackNumber(stream.read(1)).byteValue(),
             stream.read(length)
         );
     }
 
     public static Double decodeNewFloatExt(StreamInterface stream) throws IOException {
-        Long value = unpackNumber(stream.read(8));
+        Long value = Utils.unpackNumber(stream.read(8));
         return Double.longBitsToDouble(value);
     }
 

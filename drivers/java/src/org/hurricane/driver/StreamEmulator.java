@@ -16,6 +16,14 @@ public class StreamEmulator implements StreamInterface {
         write(data);
     }
 
+    public byte[] getBytes() {
+        byte[] bytes = new byte[mBuffer.size()];
+        for (Integer i = 0; i < mBuffer.size(); i++) {
+            bytes[i] = mBuffer.get(i);
+        }
+        return bytes;
+    }
+
     public byte[] read(int bytes) {
         if (mBuffer.size() < mPos + bytes) {
             throw new ArrayIndexOutOfBoundsException(

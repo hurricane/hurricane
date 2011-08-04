@@ -1,25 +1,35 @@
 package org.hurricane.driver.datatypes;
 
+import org.hurricane.driver.Utils;
 import org.hurricane.driver.datatypes.Base;
 
 public class Binary extends Base {
-    public String mData;
+    public byte[] mData;
 
     public Binary(byte[] data) {
-        mData = new String(data);
+        mData = data;
     }
 
     public String toString() {
-        return "<<" + mData + ">>";
+        return "<<" + Utils.bytesToString(mData) + ">>";
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Binary) {
             Binary ob = (Binary) other;
-            if (mData.equals(ob.mData)) {
-                return true;
+
+            if (mData.length != ob.mData.length) {
+                return false;
             }
+
+            for (Integer i = 0; i < mData.length; i++) {
+                if (mData[i] != ob.mData[i]) {
+                    return false;
+                }
+            }
+
+            return true;
         }
         return false;
     }

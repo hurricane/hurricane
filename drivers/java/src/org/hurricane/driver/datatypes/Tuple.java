@@ -14,8 +14,9 @@ public class Tuple extends Base {
         mElements = new ArrayList<Object>(capacity);
     }
 
-    public void append(Object o) {
+    public Tuple append(Object o) {
         mElements.add(o);
+        return this;
     }
 
     public String toString() {
