@@ -16,6 +16,10 @@ public class StreamEmulator implements StreamInterface {
         write(data);
     }
 
+    public Integer size() {
+        return mBuffer.size();
+    }
+
     public byte[] getBytes() {
         byte[] bytes = new byte[mBuffer.size()];
         for (Integer i = 0; i < mBuffer.size(); i++) {
