@@ -1,4 +1,4 @@
--module(hurricane_sync_port_server).
+-module(hurricane_port_server).
 
 -export([start/1]).
 
@@ -33,18 +33,23 @@ recv_next_req(Port) ->
     receive
         {Port, {exit_status, _Code}} ->
             io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            NewTagStack = [],
             erlang:exit(kill);
         {terminate, _From} ->
-            io:format("~p hurricane_sync_port_server terminating...~n", [erlang:self()]),
+            io:format("~p hurricane_port_server terminating...~n", [erlang:self()]),
+            NewTagStack = [],
             erlang:exit(normal);
         {request, From, MessageTag, Message} ->
             io:format("~p -> ~p<~p> -> ~p ~p~n", [From, request, MessageTag, erlang:self(), Message]),
             erlang:port_command(
                 Port,
                 erlang:term_to_binary({request, From, MessageTag, Message})
-            )
+            ),
+            NewTagStack = [];
+        {Port, {data, Data}} ->
+            NewTagStack = handle_port_data(Data, [])
     end,
-    {[], false}.
+    {NewTagStack, false}.
 
 recv_next_step(Port, TagStack) ->
     ExpectedMessageTag = erlang:hd(TagStack),

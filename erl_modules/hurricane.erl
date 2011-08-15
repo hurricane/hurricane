@@ -5,7 +5,7 @@
 start(Options) ->
     application:start(sasl),
     hurricane_config_server:start(Options),
-    erlang:spawn_link(hurricane_async_tcp_server, start, []),
+    erlang:spawn_link(hurricane_tcp_server, start, []),
     application:start(mochiweb),
     mochiweb_http:start([{name, ?MODULE}, {loop, fun http_handler/1}, {port, 8000}]).
 
