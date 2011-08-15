@@ -6,17 +6,16 @@ open_port(Cmd) ->
     erlang:open_port({spawn, Cmd}, [{packet, 4}, exit_status, binary]).
 
 handle_port_data(Data, TagStack) ->
-    {Type, Destination, MessageTag, Message} = erlang:binary_to_term(Data),
-    case erlang:is_pid(Destination) of
-        true -> SendTo = Destination;
-        _    -> SendTo = hurricane_utils:get_best_pid(Destination)
+    Term = erlang:binary_to_term(Data),
+    case Term of
+        {MessageType, _Destination, MessageTag, _Message} -> ok;
+        {MessageType, _Destination, MessageTag, _Message, _Timeout} -> ok
     end,
-    case Type of
+    case MessageType of
         request -> NewTagStack = [MessageTag | TagStack];
         _       -> NewTagStack = TagStack
     end,
-    io:format("~p <- ~p<~p> <- ~p ~p~n", [SendTo, Type, MessageTag, erlang:self(), Message]),
-    SendTo ! {Type, erlang:self(), MessageTag, Message},
+    erlang:spawn(hurricane_message_delegate, send, [erlang:self(), Term]),
     NewTagStack.
 
 recv_from_port(Port, TagStack) ->
