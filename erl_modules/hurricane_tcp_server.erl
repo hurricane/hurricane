@@ -1,8 +1,8 @@
 -module(hurricane_tcp_server).
 
--export([start/0, socket_loop/3]).
+-export([start/1, socket_loop/3]).
 
-start() ->
+start(_Args) ->
     ListenPort = hurricane_config_server:get_config(
         hurricane_tcp_server_port
     ),
@@ -14,7 +14,7 @@ start() ->
 acceptor_loop(ListenSocket) ->
     {ok, Socket} = gen_tcp:accept(ListenSocket),
     inet:setopts(Socket, [{active, true}]),
-    Pid = erlang:spawn(hurricane_tcp_server, socket_loop, [Socket, [], true]),
+    Pid = erlang:spawn(?MODULE, socket_loop, [Socket, [], true]),
     ok = gen_tcp:controlling_process(Socket, Pid),
     acceptor_loop(ListenSocket).
 
@@ -66,7 +66,7 @@ recv_next_req(Socket) ->
             NewTagStack = [],
             erlang:exit(kill);
         {terminate, _From} ->
-            io:format("~p hurricane_tcp_server terminating...~n", [erlang:self()]),
+            io:format("~p tcp server terminating...~n", [erlang:self()]),
             NewTagStack = [],
             erlang:exit(normal);
         {request, From, MessageTag, Message} ->

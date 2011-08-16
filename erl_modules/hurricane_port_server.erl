@@ -36,7 +36,7 @@ recv_next_req(Port) ->
             NewTagStack = [],
             erlang:exit(kill);
         {terminate, _From} ->
-            io:format("~p hurricane_port_server terminating...~n", [erlang:self()]),
+            io:format("~p stdio server terminating...~n", [erlang:self()]),
             NewTagStack = [],
             erlang:exit(normal);
         {request, From, MessageTag, Message} ->
@@ -85,6 +85,12 @@ loop(Port, TagStack, PortReady) ->
     end,
     loop(Port, NewTagStack, NewPortReady).
 
-start(Cmd) ->
+start(Options) ->
+    Cmd = proplists:get_value(cmd, Options),
     Port = open_port(Cmd),
+
+    GroupName = proplists:get_value(group_name, Options),
+    pg2:create(GroupName),
+    pg2:join(GroupName, erlang:self()),
+
     loop(Port, [], true).

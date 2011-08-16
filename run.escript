@@ -15,7 +15,7 @@ main(Args) ->
     ConfigPath = lists:nth(1, Args),
     Config = erlang:apply(LoadConfigFun, [ConfigPath]),
 
-    Modules = proplists:get_value(modules, Config, []),
+    Modules = proplists:get_value(compile_modules, Config, []),
     lists:map(
         fun(Filepath) ->
             {ok, ModuleName} = compile:file(Filepath),
