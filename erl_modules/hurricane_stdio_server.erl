@@ -1,4 +1,4 @@
--module(hurricane_port_server).
+-module(hurricane_stdio_server).
 
 -export([start/1]).
 
