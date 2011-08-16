@@ -21,9 +21,8 @@ to register over TCP with an arbitrary message group is supported.
 Next Steps:
 -----------
 
-- Allow configurable timeouts per-spawned-process
+- Support two-phase timeouts for stdio-based processes
 - Add drivers for more languages (Go, C++, etc)
-- Create an official logging facility (instead of print statements)
 - Build out multi-node distribution (connecting Hurricane instances
   together)
 - Build administrative interface for external processes

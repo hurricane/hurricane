@@ -15,8 +15,12 @@ loop(State) ->
             Value = proplists:get_value(Key, Config),
             From ! {config_for, Key, Value},
             NewState = State;
-        _Other ->
-            io:format("??? ~p~n", [_Other]),
+        Other ->
+            io:format(
+                standard_error,
+                "config server received unknown message ~p~n",
+                [Other]
+            ),
             NewState = State
     end,
     loop(NewState).

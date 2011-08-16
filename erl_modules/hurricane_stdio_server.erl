@@ -21,7 +21,11 @@ handle_port_data(Data, TagStack) ->
 recv_from_port(Port, TagStack) ->
     receive
         {Port, {exit_status, _Code}} ->
-            io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            hurricane_log_server:log(
+                error,
+                "~p :: Port ~p died, dying with it...",
+                [erlang:self(), Port]
+            ),
             NewTagStack = TagStack,
             erlang:exit(kill);
         {Port, {data, Data}} ->
@@ -32,15 +36,27 @@ recv_from_port(Port, TagStack) ->
 recv_next_req(Port) ->
     receive
         {Port, {exit_status, _Code}} ->
-            io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            hurricane_log_server:log(
+                error,
+                "~p :: Port ~p died, dying with it...",
+                [erlang:self(), Port]
+            ),
             NewTagStack = [],
             erlang:exit(kill);
         {terminate, _From} ->
-            io:format("~p stdio server terminating...~n", [erlang:self()]),
+            hurricane_log_server:log(
+                info,
+                "~p stdio server terminating...",
+                [erlang:self()]
+            ),
             NewTagStack = [],
             erlang:exit(normal);
         {request, From, MessageTag, Message} ->
-            io:format("~p -> ~p<~p> -> ~p ~p~n", [From, request, MessageTag, erlang:self(), Message]),
+            hurricane_log_server:log(
+                debug,
+                "~p -> ~p<~p> -> ~p ~p",
+                [From, request, MessageTag, erlang:self(), Message]
+            ),
             erlang:port_command(
                 Port,
                 erlang:term_to_binary({request, From, MessageTag, Message})
@@ -55,11 +71,19 @@ recv_next_step(Port, TagStack) ->
     ExpectedMessageTag = erlang:hd(TagStack),
     receive
         {Port, {exit_status, _Code}} ->
-            io:format("~p :: Port ~p died, dying with it...~n", [erlang:self(), Port]),
+            hurricane_log_server:log(
+                error,
+                "~p :: Port ~p died, dying with it...",
+                [erlang:self(), Port]
+            ),
             NewTagStack = TagStack,
             erlang:exit(kill);
         {response, From, ExpectedMessageTag, Message} ->
-            io:format("~p -> ~p<~p> -> ~p ~p~n", [From, response, ExpectedMessageTag, erlang:self(), Message]),
+            hurricane_log_server:log(
+                debug,
+                "~p -> ~p<~p> -> ~p ~p",
+                [From, response, ExpectedMessageTag, erlang:self(), Message]
+            ),
             erlang:port_command(
                 Port,
                 erlang:term_to_binary({response, From, ExpectedMessageTag, Message})
@@ -71,7 +95,11 @@ recv_next_step(Port, TagStack) ->
     {NewTagStack, false}.
 
 loop(Port, TagStack, PortReady) ->
-    io:format("~p tag stack: ~p~n", [erlang:self(), TagStack]),
+    hurricane_log_server:log(
+        debug,
+        "~p tag stack: ~p",
+        [erlang:self(), TagStack]
+    ),
     case erlang:length(TagStack) of
         0 ->
             case PortReady of

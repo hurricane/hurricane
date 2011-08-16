@@ -13,7 +13,11 @@ send(Source, MessageType, Destination, MessageTag, Message, Timeout) ->
         true -> SendTo = Destination;
         _    -> SendTo = hurricane_utils:get_best_pid(Destination)
     end,
-    io:format("~p <- ~p<~p> <- ~p ~p~n", [SendTo, MessageType, MessageTag, Source, Message]),
+    hurricane_log_server:log(
+        debug,
+        "~p <- ~p<~p> <- ~p ~p",
+        [SendTo, MessageType, MessageTag, Source, Message]
+    ),
     SendTo ! {MessageType, erlang:self(), MessageTag, Message},
     recv(Source, MessageType, MessageTag, Timeout).
 

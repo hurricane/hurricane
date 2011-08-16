@@ -23,18 +23,31 @@ start_module_instances(Module, Function, Args, Count) ->
     ).
 
 start_module(Module, Function, Args) ->
+    hurricane_log_server:log(
+        info,
+        "supervisor starting module: [~p, ~p, ~p]",
+        [Module, Function, [Args]]
+    ),
     Pid = erlang:spawn_link(Module, Function, [Args]),
     erlang:put(Pid, {Module, Function, Args}).
 
 loop() ->
     receive
         {'EXIT', Pid, Reason} ->
-            io:format("~p ~p, restarting...~n", [Pid, Reason]),
+            hurricane_log_server:log(
+                error,
+                "~p ~p, supervisor restarting...",
+                [Pid, Reason]
+            ),
             {Module, Function, Args} = erlang:get(Pid),
             erlang:erase(Pid),
             start_module(Module, Function, Args);
         Other ->
-            io:format("Supervisor received unknown message: ~p~n", [Other])
+            hurricane_log_server:log(
+                error,
+                "supervisor received unknown message: ~p~n",
+                [Other]
+            )
     end,
     loop().
 

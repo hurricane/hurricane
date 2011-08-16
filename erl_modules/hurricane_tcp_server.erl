@@ -21,7 +21,11 @@ acceptor_loop(ListenSocket) ->
 %% Non-Listener socket functions below
 
 register_with_group(GroupName) ->
-    io:format("~p registering with group: ~p~n", [erlang:self(), GroupName]),
+    hurricane_log_server:log(
+        info,
+        "~p registering with group: ~p",
+        [erlang:self(), GroupName]
+    ),
     pg2:create(GroupName),
     pg2:join(GroupName, erlang:self()).
 
@@ -50,7 +54,11 @@ recv_from_socket(Socket, TagStack) ->
     receive
         {tcp_closed, Port} ->
             gen_tcp:close(Socket),
-            io:format("~p (~p), closed, dying...~n", [Port, erlang:self()]),
+            hurricane_log_server:log(
+                info,
+                "~p (~p), closed, dying...",
+                [Port, erlang:self()]
+            ),
             NewTagStack = TagStack,
             erlang:exit(kill);
         {tcp, _Port, Data} ->
@@ -62,15 +70,27 @@ recv_next_req(Socket) ->
     receive
         {tcp_closed, Port} ->
             gen_tcp:close(Socket),
-            io:format("~p (~p), closed, dying...~n", [Port, erlang:self()]),
+            hurricane_log_server:log(
+                info,
+                "~p (~p), closed, dying...",
+                [Port, erlang:self()]
+            ),
             NewTagStack = [],
             erlang:exit(kill);
         {terminate, _From} ->
-            io:format("~p tcp server terminating...~n", [erlang:self()]),
+            hurricane_log_server:log(
+                info,
+                "~p tcp server terminating...",
+                [erlang:self()]
+            ),
             NewTagStack = [],
             erlang:exit(normal);
         {request, From, MessageTag, Message} ->
-            io:format("~p -> ~p<~p> -> ~p ~p~n", [From, request, MessageTag, erlang:self(), Message]),
+            hurricane_log_server:log(
+                debug,
+                "~p -> ~p<~p> -> ~p ~p",
+                [From, request, MessageTag, erlang:self(), Message]
+            ),
             gen_tcp:send(
                 Socket,
                 erlang:term_to_binary({request, From, MessageTag, Message})
@@ -86,11 +106,19 @@ recv_next_step(Socket, TagStack) ->
     receive
         {tcp_closed, Port} ->
             gen_tcp:close(Socket),
-            io:format("~p (~p), closed, dying...~n", [Port, erlang:self()]),
+            hurricane_log_server:log(
+                info,
+                "~p (~p), closed, dying...",
+                [Port, erlang:self()]
+            ),
             NewTagStack = TagStack,
             erlang:exit(kill);
         {response, From, ExpectedMessageTag, Message} ->
-            io:format("~p -> ~p<~p> -> ~p ~p~n", [From, response, ExpectedMessageTag, erlang:self(), Message]),
+            hurricane_log_server:log(
+                debug,
+                "~p -> ~p<~p> -> ~p ~p",
+                [From, response, ExpectedMessageTag, erlang:self(), Message]
+            ),
             gen_tcp:send(
                 Socket,
                 erlang:term_to_binary({response, From, ExpectedMessageTag, Message})
@@ -102,7 +130,11 @@ recv_next_step(Socket, TagStack) ->
     {NewTagStack, false}.
 
 socket_loop(Socket, TagStack, SocketReady) ->
-    io:format("~p tag stack: ~p~n", [erlang:self(), TagStack]),
+    hurricane_log_server:log(
+        debug,
+        "~p tag stack: ~p",
+        [erlang:self(), TagStack]
+    ),
     case erlang:length(TagStack) of
         0 ->
             case SocketReady of
