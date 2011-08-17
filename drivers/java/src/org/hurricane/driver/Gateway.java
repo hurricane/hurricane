@@ -14,7 +14,12 @@ public class Gateway {
     private StreamEmulator mStreamWrapper;
 
     public Gateway() throws IOException {
-        mStream = new StdioWrapper();
+        setStream(new StdioWrapper());
+        mStreamWrapper = new StreamEmulator();
+    }
+
+    public Gateway(StreamInterface stream) throws IOException {
+        setStream(stream);
         mStreamWrapper = new StreamEmulator();
     }
 
