@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<project name="Hello" default="compile">
+<project name="JavaErlangDriver" default="compile">
   <target name="clean" description="remove intermediate files">
     <delete dir="classes"/>
   </target>
   <target name="clobber" depends="clean" description="remove all artifact files">
-    <delete file="hello.jar"/>
+    <delete file="java-erlang-driver.jar"/>
   </target>
   <target name="compile" description="compile the Java source code to class files">
     <mkdir dir="classes"/>
