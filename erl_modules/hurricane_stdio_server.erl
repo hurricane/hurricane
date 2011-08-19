@@ -18,7 +18,7 @@ handle_port_data(Data, TagStack) ->
     erlang:spawn(hurricane_message_delegate, send, [erlang:self(), Term]),
     NewTagStack.
 
-recv_from_port(Port, TagStack) ->
+recv_from_port(Port, TagStack, PortTimeout) ->
     receive
         {Port, {exit_status, _Code}} ->
             hurricane_log_server:log(
@@ -30,6 +30,9 @@ recv_from_port(Port, TagStack) ->
             erlang:exit(kill);
         {Port, {data, Data}} ->
             NewTagStack = handle_port_data(Data, TagStack)
+    after PortTimeout ->
+        NewTagStack = TagStack,
+        erlang:exit(timeout)
     end,
     {NewTagStack, true}.
 
@@ -94,7 +97,7 @@ recv_next_step(Port, TagStack) ->
     end,
     {NewTagStack, false}.
 
-loop(Port, TagStack, PortReady) ->
+loop(Port, TagStack, PortReady, PortTimeout) ->
     hurricane_log_server:log(
         debug,
         "~p tag stack: ~p",
@@ -104,21 +107,37 @@ loop(Port, TagStack, PortReady) ->
         0 ->
             case PortReady of
                 false ->
-                    {NewTagStack, NewPortReady} = recv_from_port(Port, TagStack);
+                    {NewTagStack, NewPortReady} = recv_from_port(Port, TagStack, PortTimeout);
                 true  ->
                     {NewTagStack, NewPortReady} = recv_next_req(Port)
             end;
         _ ->
             {NewTagStack, NewPortReady} = recv_next_step(Port, TagStack)
     end,
-    loop(Port, NewTagStack, NewPortReady).
+    loop(Port, NewTagStack, NewPortReady, PortTimeout).
+
+init_port(Cmd, PortStartupTimeout) ->
+    Port = open_port(Cmd),
+    receive
+        {Port, {data, Data}} ->
+            Term = erlang:binary_to_term(Data),
+            case Term of
+                {ready} -> ok;
+                _ -> erlang:exit(bad_port_start)
+            end
+    after PortStartupTimeout ->
+        erlang:exit(port_start_timeout)
+    end,
+    Port.
 
 start(Options) ->
     Cmd = proplists:get_value(cmd, Options),
-    Port = open_port(Cmd),
+    PortStartupTimeout = proplists:get_value(port_startup_timeout, Options, 10000),
+    PortTimeout = proplists:get_value(port_timeout, Options, 10000),
+    Port = init_port(Cmd, PortStartupTimeout),
 
     GroupName = proplists:get_value(group_name, Options),
     pg2:create(GroupName),
     pg2:join(GroupName, erlang:self()),
 
-    loop(Port, [], true).
+    loop(Port, [], true, PortTimeout).

@@ -31,6 +31,8 @@ def parse_http_request(data):
 
 def main():
     gateway = Gateway()
+    gateway.send((Atom('ready'), ))
+
     while True:
         r, source, message_type, message = gateway.recv()
         request = parse_http_request(message)
