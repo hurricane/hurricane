@@ -1,6 +1,10 @@
 #!/usr/bin/env escript
 %%! -smp enable -sname hurricane
 
+%% Main entry point into Hurricane. Given a single argument, which is
+%% the path to a config file, loads the config, compiles all modules as
+%% described in the config, adds all load paths as described in the
+%% config, and starts Hurricane.
 main(Args) ->
     LoadConfigFun = fun(ConfigPath) ->
         {ok, Config} = file:consult(ConfigPath),
@@ -35,6 +39,9 @@ main(Args) ->
     ),
     block().
 
+%% Waits forever. Ensures that the calling process never exits. Useful
+%% in this case to keep Hurricane running forever instead of instantly
+%% exiting.
 block() ->
     receive
         _ -> ok
