@@ -1,7 +1,13 @@
+%%% A module for common utility functions.
+
 -module(hurricane_utils).
 
 -export([get_best_pid/1]).
 
+%% Given a group name, gets all Pids associated with that group name.
+%% Gets the message queue length and the stack size of each Pid and
+%% returns the process that is the least busy. This in effect creates
+%% very intelligent load-balancing.
 get_best_pid(Name) ->
     Members = lists:map(fun(Pid) ->
         [
