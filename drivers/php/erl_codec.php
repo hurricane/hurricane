@@ -773,7 +773,7 @@ class Gateway {
     private $stream;
     private $stream_wrapper;
 
-    public function __construct($stream=null) {
+    public function __construct(StreamInterface $stream=null) {
         if ($stream) {
             $this->setStream($stream);
         } else {
@@ -782,7 +782,7 @@ class Gateway {
         $this->stream_wrapper = new StreamEmulator();
     }
 
-    public function setStream($stream) {
+    public function setStream(StreamInterface $stream) {
         $this->close();
         $this->stream = $stream;
     }
