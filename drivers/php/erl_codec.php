@@ -4,7 +4,7 @@ namespace Erlang;
 
 class Exception extends \Exception {}
 
-class StreamEmulator {
+class StreamEmulator implements StreamInterface {
     public $data;
     public $pos;
 
@@ -45,6 +45,8 @@ class StreamEmulator {
         $this->data = '';
         $this->pos = 0;
     }
+
+    public function close() {}
 }
 
 class AtomCacheRef {
@@ -699,7 +701,14 @@ function from_binary($input) {
     return $output;
 }
 
-class SocketWrapper {
+interface StreamInterface {
+    public function read($num);
+    public function write($data);
+    public function flush();
+    public function close();
+}
+
+class SocketWrapper implements StreamInterface {
     private $socket;
 
     public function __construct($host, $port) {
@@ -729,7 +738,7 @@ class SocketWrapper {
     }
 }
 
-class StdioWrapper {
+class StdioWrapper implements StreamInterface {
     private $in;
     private $out;
 
