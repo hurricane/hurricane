@@ -122,7 +122,7 @@ recv_next_req(Socket) ->
             end,
             NewTagStack = [];
         {tcp, _Port, Data} ->
-            NewSocketReady = false,
+            NewSocketReady = true,
             NewTagStack = handle_socket_data(Data, [])
     end,
     {NewTagStack, NewSocketReady}.
