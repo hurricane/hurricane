@@ -1,6 +1,5 @@
 package org.hurricane.driver;
 
-import org.hurricane.driver.StreamInterface;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -12,7 +11,8 @@ public class SocketWrapper implements StreamInterface {
     public BufferedOutputStream mOut;
     public Socket mSocket;
 
-    public SocketWrapper(String host, int port) throws IOException, UnknownHostException {
+    public SocketWrapper(String host, int port) throws IOException,
+            UnknownHostException {
         mSocket = new Socket(host, port);
         mIn = new BufferedInputStream(mSocket.getInputStream());
         mOut = new BufferedOutputStream(mSocket.getOutputStream());

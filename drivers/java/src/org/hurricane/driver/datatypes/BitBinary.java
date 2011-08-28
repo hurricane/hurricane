@@ -1,9 +1,5 @@
 package org.hurricane.driver.datatypes;
 
-import java.util.ArrayList;
-import org.hurricane.driver.datatypes.Base;
-import org.hurricane.driver.datatypes.Pid;
-
 public class BitBinary extends Base {
     public Byte mBits;
     public String mData;
@@ -12,7 +8,7 @@ public class BitBinary extends Base {
         mBits = (Byte) bits;
         mData = new String(data);
     }
-    
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         byte[] data = mData.getBytes();

@@ -1,8 +1,6 @@
 package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
-import org.hurricane.driver.datatypes.Base;
-import org.hurricane.driver.datatypes.Pid;
 
 public class NewReference extends Base {
     public Object mAtom;
@@ -14,7 +12,7 @@ public class NewReference extends Base {
         mCreation = creation;
         mIds = ids;
     }
-    
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(mAtom);

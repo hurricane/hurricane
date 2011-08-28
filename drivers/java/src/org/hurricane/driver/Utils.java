@@ -74,72 +74,71 @@ public class Utils {
         return value;
     }
 
-    public static byte[] packNumber(Object number) throws UnsupportedOperationException {
+    public static byte[] packNumber(Object number)
+            throws UnsupportedOperationException {
         if (ENDIANNESS == LITTLE_ENDIAN) {
             if (number instanceof Byte) {
                 byte full[] = new byte[1];
-                full[0] = (byte)((Byte)number);
+                full[0] = (byte) ((Byte) number);
                 return full;
             } else if (number instanceof Short) {
                 byte full[] = new byte[2];
-                full[0] = (byte)((Short)number >> 8);
-                full[1] = (byte)((Short)number >> 0);
+                full[0] = (byte) ((Short) number >> 8);
+                full[1] = (byte) ((Short) number >> 0);
                 return full;
             } else if (number instanceof Integer) {
                 byte full[] = new byte[4];
-                full[0] = (byte)((Integer)number >> 24);
-                full[1] = (byte)((Integer)number >> 16);
-                full[2] = (byte)((Integer)number >> 8);
-                full[3] = (byte)((Integer)number >> 0);
+                full[0] = (byte) ((Integer) number >> 24);
+                full[1] = (byte) ((Integer) number >> 16);
+                full[2] = (byte) ((Integer) number >> 8);
+                full[3] = (byte) ((Integer) number >> 0);
                 return full;
             } else if (number instanceof Long) {
                 byte full[] = new byte[8];
-                full[0] = (byte)((Long)number >> 56);
-                full[1] = (byte)((Long)number >> 48);
-                full[2] = (byte)((Long)number >> 40);
-                full[3] = (byte)((Long)number >> 32);
-                full[4] = (byte)((Long)number >> 24);
-                full[5] = (byte)((Long)number >> 16);
-                full[6] = (byte)((Long)number >> 8);
-                full[7] = (byte)((Long)number >> 0);
+                full[0] = (byte) ((Long) number >> 56);
+                full[1] = (byte) ((Long) number >> 48);
+                full[2] = (byte) ((Long) number >> 40);
+                full[3] = (byte) ((Long) number >> 32);
+                full[4] = (byte) ((Long) number >> 24);
+                full[5] = (byte) ((Long) number >> 16);
+                full[6] = (byte) ((Long) number >> 8);
+                full[7] = (byte) ((Long) number >> 0);
                 return full;
             } else {
-                throw new UnsupportedOperationException(
-                    "Object " + number + " cannot be packed!"
-                );
+                throw new UnsupportedOperationException("Object " + number
+                        + " cannot be packed!");
             }
         } else {
             if (number instanceof Byte) {
                 byte full[] = new byte[1];
-                full[0] = (byte)((Byte)number);
+                full[0] = (byte) ((Byte) number);
                 return full;
             } else if (number instanceof Short) {
                 byte full[] = new byte[2];
-                full[1] = (byte)((Short)number >> 8);
-                full[0] = (byte)((Short)number >> 0);
+                full[1] = (byte) ((Short) number >> 8);
+                full[0] = (byte) ((Short) number >> 0);
                 return full;
             } else if (number instanceof Integer) {
                 byte full[] = new byte[4];
-                full[3] = (byte)((Integer)number >> 24);
-                full[2] = (byte)((Integer)number >> 16);
-                full[1] = (byte)((Integer)number >> 8);
-                full[0] = (byte)((Integer)number >> 0);
+                full[3] = (byte) ((Integer) number >> 24);
+                full[2] = (byte) ((Integer) number >> 16);
+                full[1] = (byte) ((Integer) number >> 8);
+                full[0] = (byte) ((Integer) number >> 0);
                 return full;
             } else if (number instanceof Long) {
                 byte full[] = new byte[8];
-                full[7] = (byte)((Long)number >> 56);
-                full[6] = (byte)((Long)number >> 48);
-                full[5] = (byte)((Long)number >> 40);
-                full[4] = (byte)((Long)number >> 32);
-                full[3] = (byte)((Long)number >> 24);
-                full[2] = (byte)((Long)number >> 16);
-                full[1] = (byte)((Long)number >> 8);
-                full[0] = (byte)((Long)number >> 0);
+                full[7] = (byte) ((Long) number >> 56);
+                full[6] = (byte) ((Long) number >> 48);
+                full[5] = (byte) ((Long) number >> 40);
+                full[4] = (byte) ((Long) number >> 32);
+                full[3] = (byte) ((Long) number >> 24);
+                full[2] = (byte) ((Long) number >> 16);
+                full[1] = (byte) ((Long) number >> 8);
+                full[0] = (byte) ((Long) number >> 0);
                 return full;
             } else {
-                throw new UnsupportedOperationException(
-                    "Object " + number + " cannot be packed!"
-                );
+                throw new UnsupportedOperationException("Object " + number
+                        + " cannot be packed!");
             }
         }
     }

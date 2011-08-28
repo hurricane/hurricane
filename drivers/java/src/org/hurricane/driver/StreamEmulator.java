@@ -1,7 +1,6 @@
 package org.hurricane.driver;
 
 import java.util.ArrayList;
-import org.hurricane.driver.StreamInterface;
 
 public class StreamEmulator implements StreamInterface {
     public ArrayList<Byte> mBuffer;
@@ -31,9 +30,9 @@ public class StreamEmulator implements StreamInterface {
     public byte[] read(int bytes) {
         if (mBuffer.size() < mPos + bytes) {
             throw new ArrayIndexOutOfBoundsException(
-                "Out of data to read (was asked for " + bytes +
-                " bytes(s), only " + (mBuffer.size() - mPos) + 
-                " bytes(s) remain)");
+                    "Out of data to read (was asked for " + bytes
+                            + " bytes(s), only " + (mBuffer.size() - mPos)
+                            + " bytes(s) remain)");
         }
 
         byte[] rawBytes = new byte[bytes];

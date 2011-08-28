@@ -1,8 +1,5 @@
 package org.hurricane.driver.datatypes;
 
-import org.hurricane.driver.datatypes.Base;
-import org.hurricane.driver.datatypes.Atom;
-
 public class Port extends Base {
     public Atom mAtom;
     public Integer mIdentifier;

@@ -1,38 +1,41 @@
 package org.hurricane.driver;
 
-import java.util.ArrayList;
 import java.io.IOException;
 import java.math.BigInteger;
-import org.hurricane.driver.Utils;
-import org.hurricane.driver.StreamInterface;
-import org.hurricane.driver.datatypes.AtomCacheRef;
+import java.util.ArrayList;
+
 import org.hurricane.driver.datatypes.Atom;
-import org.hurricane.driver.datatypes.Reference;
-import org.hurricane.driver.datatypes.Port;
-import org.hurricane.driver.datatypes.Pid;
-import org.hurricane.driver.datatypes.Tuple;
-import org.hurricane.driver.datatypes.Nil;
+import org.hurricane.driver.datatypes.AtomCacheRef;
 import org.hurricane.driver.datatypes.Binary;
-import org.hurricane.driver.datatypes.NewFunction;
+import org.hurricane.driver.datatypes.BitBinary;
 import org.hurricane.driver.datatypes.ErlFunction;
 import org.hurricane.driver.datatypes.Export;
+import org.hurricane.driver.datatypes.NewFunction;
 import org.hurricane.driver.datatypes.NewReference;
-import org.hurricane.driver.datatypes.BitBinary;
+import org.hurricane.driver.datatypes.Nil;
+import org.hurricane.driver.datatypes.Pid;
+import org.hurricane.driver.datatypes.Port;
+import org.hurricane.driver.datatypes.Reference;
+import org.hurricane.driver.datatypes.Tuple;
 
 public class Decoder {
-    public static AtomCacheRef decodeAtomCacheRef(StreamInterface stream) throws IOException {
+    public static AtomCacheRef decodeAtomCacheRef(StreamInterface stream)
+            throws IOException {
         return new AtomCacheRef(stream.read(1)[0]);
     }
 
-    public static Byte decodeSmallIntegerExt(StreamInterface stream) throws IOException {
+    public static Byte decodeSmallIntegerExt(StreamInterface stream)
+            throws IOException {
         return stream.read(1)[0];
     }
 
-    public static Integer decodeIntegerExt(StreamInterface stream) throws IOException {
+    public static Integer decodeIntegerExt(StreamInterface stream)
+            throws IOException {
         return Utils.unpackNumber(stream.read(4)).intValue();
     }
 
-    public static Double decodeFloatExt(StreamInterface stream) throws IOException {
+    public static Double decodeFloatExt(StreamInterface stream)
+            throws IOException {
         return new Double(new String(stream.read(31)));
     }
 
@@ -41,7 +44,8 @@ public class Decoder {
         return new Atom(new String(stream.read(atom_len)));
     }
 
-    public static Reference decodeReferenceExt(StreamInterface stream) throws IOException {
+    public static Reference decodeReferenceExt(StreamInterface stream)
+            throws IOException {
         Atom atom = (Atom) decode(stream, false);
         Integer identifier = Utils.unpackNumber(stream.read(4)).intValue();
         Byte creation = stream.read(1)[0];
@@ -63,7 +67,8 @@ public class Decoder {
         return new Pid(atom, identifier, serial, creation);
     }
 
-    public static Tuple decodeSmallTupleExt(StreamInterface stream) throws IOException {
+    public static Tuple decodeSmallTupleExt(StreamInterface stream)
+            throws IOException {
         Short tupleLen = Utils.unpackNumber(stream.read(1)).shortValue();
         Tuple tuple = new Tuple(tupleLen.intValue());
         Object element;
@@ -74,7 +79,8 @@ public class Decoder {
         return tuple;
     }
 
-    public static Tuple decodeLargeTupleExt(StreamInterface stream) throws IOException {
+    public static Tuple decodeLargeTupleExt(StreamInterface stream)
+            throws IOException {
         Integer tupleLen = Utils.unpackNumber(stream.read(4)).intValue();
         Tuple tuple = new Tuple(tupleLen);
         Object element;
@@ -89,12 +95,14 @@ public class Decoder {
         return new Nil();
     }
 
-    public static String decodeStringExt(StreamInterface stream) throws IOException {
+    public static String decodeStringExt(StreamInterface stream)
+            throws IOException {
         Integer strLen = Utils.unpackNumber(stream.read(2)).intValue();
         return new String(stream.read(strLen));
     }
 
-    public static Object decodeListExt(StreamInterface stream) throws IOException {
+    public static Object decodeListExt(StreamInterface stream)
+            throws IOException {
         Integer listLen = Utils.unpackNumber(stream.read(4)).intValue();
         ArrayList<Object> list = new ArrayList<Object>(listLen);
         Object value;
@@ -120,12 +128,14 @@ public class Decoder {
         }
     }
 
-    public static Binary decodeBinaryExt(StreamInterface stream) throws IOException {
+    public static Binary decodeBinaryExt(StreamInterface stream)
+            throws IOException {
         Integer binLen = Utils.unpackNumber(stream.read(4)).intValue();
         return new Binary(stream.read(binLen));
     }
 
-    public static BigInteger decodeSmallBigExt(StreamInterface stream) throws IOException {
+    public static BigInteger decodeSmallBigExt(StreamInterface stream)
+            throws IOException {
         Short numBytes = Utils.unpackNumber(stream.read(1)).shortValue();
         Byte sign = Utils.unpackNumber(stream.read(1)).byteValue();
         byte[] bytes = stream.read(numBytes);
@@ -136,7 +146,8 @@ public class Decoder {
         return value;
     }
 
-    public static BigInteger decodeLargeBigExt(StreamInterface stream) throws IOException {
+    public static BigInteger decodeLargeBigExt(StreamInterface stream)
+            throws IOException {
         Long numBytes = Utils.unpackNumber(stream.read(4));
         Byte sign = Utils.unpackNumber(stream.read(1)).byteValue();
         byte[] bytes = stream.read(numBytes.intValue());
@@ -147,8 +158,11 @@ public class Decoder {
         return value;
     }
 
-    public static NewFunction decodeNewFunExt(StreamInterface stream) throws IOException {
+    public static NewFunction decodeNewFunExt(StreamInterface stream)
+            throws IOException {
+        @SuppressWarnings("unused")
         Long size = Utils.unpackNumber(stream.read(4));
+
         Byte arity = Utils.unpackNumber(stream.read(1)).byteValue();
         String uniq = new String(stream.read(16));
         Integer index = Utils.unpackNumber(stream.read(4)).intValue();
@@ -165,18 +179,19 @@ public class Decoder {
             freeVars.add(freeVar);
         }
 
-        return new NewFunction(
-            arity, uniq, index, module, oldIndex, oldUniq, pid, freeVars
-        );
+        return new NewFunction(arity, uniq, index, module, oldIndex, oldUniq,
+                pid, freeVars);
     }
 
-    public static Atom decodeSmallAtomExt(StreamInterface stream) throws IOException {
+    public static Atom decodeSmallAtomExt(StreamInterface stream)
+            throws IOException {
         Integer atomLen = Utils.unpackNumber(stream.read(1)).intValue();
         String atomName = new String(stream.read(atomLen));
         return new Atom(atomName);
     }
 
-    public static ErlFunction decodeFunExt(StreamInterface stream) throws IOException {
+    public static ErlFunction decodeFunExt(StreamInterface stream)
+            throws IOException {
         Long numFree = Utils.unpackNumber(stream.read(4));
         Pid pid = (Pid) decode(stream, false);
         Object module = decode(stream, false);
@@ -190,12 +205,11 @@ public class Decoder {
             freeVars.add(freeVar);
         }
 
-        return new ErlFunction(
-            pid, module, index, uniq, freeVars
-        );
+        return new ErlFunction(pid, module, index, uniq, freeVars);
     }
 
-    public static Export decodeExportExt(StreamInterface stream) throws IOException {
+    public static Export decodeExportExt(StreamInterface stream)
+            throws IOException {
         Object module = decode(stream, false);
         Object function = decode(stream, false);
         Byte arity = (Byte) decode(stream, false);
@@ -203,7 +217,8 @@ public class Decoder {
         return new Export(module, function, arity);
     }
 
-    public static NewReference decodeNewReferenceExt(StreamInterface stream) throws IOException {
+    public static NewReference decodeNewReferenceExt(StreamInterface stream)
+            throws IOException {
         Integer length = Utils.unpackNumber(stream.read(2)).intValue();
         Object atom = decode(stream, false);
         Byte creation = Utils.unpackNumber(stream.read(1)).byteValue();
@@ -218,29 +233,32 @@ public class Decoder {
         return new NewReference(atom, creation, identifiers);
     }
 
-    public static BitBinary decodeBitBinaryExt(StreamInterface stream) throws IOException {
+    public static BitBinary decodeBitBinaryExt(StreamInterface stream)
+            throws IOException {
         Integer length = Utils.unpackNumber(stream.read(4)).intValue();
-        return new BitBinary(
-            Utils.unpackNumber(stream.read(1)).byteValue(),
-            stream.read(length)
-        );
+        return new BitBinary(Utils.unpackNumber(stream.read(1)).byteValue(),
+                stream.read(length));
     }
 
-    public static Double decodeNewFloatExt(StreamInterface stream) throws IOException {
+    public static Double decodeNewFloatExt(StreamInterface stream)
+            throws IOException {
         Long value = Utils.unpackNumber(stream.read(8));
         return Double.longBitsToDouble(value);
     }
 
-    public static Object decode(StreamInterface stream) throws UnsupportedOperationException, IOException {
+    public static Object decode(StreamInterface stream)
+            throws UnsupportedOperationException, IOException {
         return decode(stream, true);
     }
 
-    public static Object decode(StreamInterface stream, Boolean checkDistTag) throws UnsupportedOperationException, IOException {
+    public static Object decode(StreamInterface stream, Boolean checkDistTag)
+            throws UnsupportedOperationException, IOException {
         byte firstByte = stream.read(1)[0];
         byte extCode;
         if (checkDistTag) {
             if (firstByte != (byte) 131) {
-                throw new UnsupportedOperationException("this is not an Erlang EXT datatype");
+                throw new UnsupportedOperationException(
+                        "this is not an Erlang EXT datatype");
             } else {
                 extCode = stream.read(1)[0];
             }
@@ -249,33 +267,55 @@ public class Decoder {
         }
 
         switch (extCode) {
-            case 70:  return decodeNewFloatExt(stream);
-            case 77:  return decodeBitBinaryExt(stream);
-            case 82:  return decodeAtomCacheRef(stream);
-            case 97:  return decodeSmallIntegerExt(stream);
-            case 98:  return decodeIntegerExt(stream);
-            case 99:  return decodeFloatExt(stream);
-            case 100: return decodeAtomExt(stream);
-            case 101: return decodeReferenceExt(stream);
-            case 102: return decodePortExt(stream);
-            case 103: return decodePidExt(stream);
-            case 104: return decodeSmallTupleExt(stream);
-            case 105: return decodeLargeTupleExt(stream);
-            case 106: return decodeNilExt(stream);
-            case 107: return decodeStringExt(stream);
-            case 108: return decodeListExt(stream);
-            case 109: return decodeBinaryExt(stream);
-            case 110: return decodeSmallBigExt(stream);
-            case 111: return decodeLargeBigExt(stream);
-            case 112: return decodeNewFunExt(stream);
-            case 113: return decodeExportExt(stream);
-            case 114: return decodeNewReferenceExt(stream);
-            case 115: return decodeSmallAtomExt(stream);
-            case 117: return decodeFunExt(stream);
-            default:
-                throw new UnsupportedOperationException(
-                    "Unable to decode Erlang EXT data type: " + extCode
-                );
+        case 70:
+            return decodeNewFloatExt(stream);
+        case 77:
+            return decodeBitBinaryExt(stream);
+        case 82:
+            return decodeAtomCacheRef(stream);
+        case 97:
+            return decodeSmallIntegerExt(stream);
+        case 98:
+            return decodeIntegerExt(stream);
+        case 99:
+            return decodeFloatExt(stream);
+        case 100:
+            return decodeAtomExt(stream);
+        case 101:
+            return decodeReferenceExt(stream);
+        case 102:
+            return decodePortExt(stream);
+        case 103:
+            return decodePidExt(stream);
+        case 104:
+            return decodeSmallTupleExt(stream);
+        case 105:
+            return decodeLargeTupleExt(stream);
+        case 106:
+            return decodeNilExt(stream);
+        case 107:
+            return decodeStringExt(stream);
+        case 108:
+            return decodeListExt(stream);
+        case 109:
+            return decodeBinaryExt(stream);
+        case 110:
+            return decodeSmallBigExt(stream);
+        case 111:
+            return decodeLargeBigExt(stream);
+        case 112:
+            return decodeNewFunExt(stream);
+        case 113:
+            return decodeExportExt(stream);
+        case 114:
+            return decodeNewReferenceExt(stream);
+        case 115:
+            return decodeSmallAtomExt(stream);
+        case 117:
+            return decodeFunExt(stream);
+        default:
+            throw new UnsupportedOperationException(
+                    "Unable to decode Erlang EXT data type: " + extCode);
         }
     }
 }

@@ -1,8 +1,6 @@
 package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
-import org.hurricane.driver.datatypes.Base;
-import org.hurricane.driver.datatypes.Pid;
 
 public class ErlFunction extends Base {
     public Pid mPid;
@@ -11,14 +9,15 @@ public class ErlFunction extends Base {
     public Object mUniq;
     public ArrayList<Object> mFreeVars;
 
-    public ErlFunction(Pid pid, Object module, Object index, Object uniq, ArrayList<Object> freeVars) {
+    public ErlFunction(Pid pid, Object module, Object index, Object uniq,
+            ArrayList<Object> freeVars) {
         mPid = pid;
         mModule = module;
         mIndex = index;
         mUniq = uniq;
         mFreeVars = freeVars;
     }
-    
+
     public String toString() {
         return mModule + ":" + mUniq;
     }

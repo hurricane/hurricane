@@ -1,6 +1,5 @@
 package org.hurricane.driver;
 
-import org.hurricane.driver.StreamInterface;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 

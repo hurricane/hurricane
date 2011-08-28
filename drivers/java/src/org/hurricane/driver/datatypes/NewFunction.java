@@ -1,8 +1,6 @@
 package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
-import org.hurricane.driver.datatypes.Base;
-import org.hurricane.driver.datatypes.Pid;
 
 public class NewFunction extends Base {
     public Byte mArity;
@@ -14,7 +12,8 @@ public class NewFunction extends Base {
     public Pid mPid;
     public ArrayList<Object> mFreeVars;
 
-    public NewFunction(Byte arity, String uniq, Integer index, Object module, Object oldIndex, Object oldUniq, Pid pid, ArrayList<Object> freeVars) {
+    public NewFunction(Byte arity, String uniq, Integer index, Object module,
+            Object oldIndex, Object oldUniq, Pid pid, ArrayList<Object> freeVars) {
         mArity = arity;
         mUniq = uniq;
         mIndex = index;
@@ -39,7 +38,7 @@ public class NewFunction extends Base {
         }
         return builder.toString();
     }
-    
+
     public String toString() {
         return mModule + ":" + uniqToHex() + "/" + mArity;
     }

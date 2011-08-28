@@ -1,7 +1,7 @@
 package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
-import org.hurricane.driver.datatypes.Base;
+import java.util.List;
 
 public class Tuple extends Base {
     public ArrayList<Object> mElements;
@@ -14,9 +14,8 @@ public class Tuple extends Base {
         mElements = new ArrayList<Object>(capacity);
     }
 
-    public Tuple append(Object o) {
-        mElements.add(o);
-        return this;
+    public List<Object> elements() {
+        return mElements;
     }
 
     public String toString() {

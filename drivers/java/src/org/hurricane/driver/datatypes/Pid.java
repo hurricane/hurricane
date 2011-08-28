@@ -1,8 +1,5 @@
 package org.hurricane.driver.datatypes;
 
-import org.hurricane.driver.datatypes.Base;
-import org.hurricane.driver.datatypes.Atom;
-
 public class Pid extends Base {
     public Atom mAtom;
     public Integer mIdentifier;
@@ -17,7 +14,8 @@ public class Pid extends Base {
     }
 
     public String toString() {
-        return mAtom + ":<" + mSerial + "." + mIdentifier + "." + mCreation + ">";
+        return mAtom + ":<" + mSerial + "." + mIdentifier + "." + mCreation
+                + ">";
     }
 
     @Override

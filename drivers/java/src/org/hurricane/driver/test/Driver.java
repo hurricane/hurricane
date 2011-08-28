@@ -1,26 +1,27 @@
 package org.hurricane.driver.test;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.math.BigInteger;
-import org.hurricane.driver.Utils;
-import org.hurricane.driver.StreamEmulator;
+
 import org.hurricane.driver.Decoder;
 import org.hurricane.driver.Encoder;
-import org.hurricane.driver.datatypes.AtomCacheRef;
+import org.hurricane.driver.StreamEmulator;
+import org.hurricane.driver.Utils;
 import org.hurricane.driver.datatypes.Atom;
-import org.hurricane.driver.datatypes.Reference;
-import org.hurricane.driver.datatypes.Port;
-import org.hurricane.driver.datatypes.Pid;
-import org.hurricane.driver.datatypes.Tuple;
-import org.hurricane.driver.datatypes.Nil;
+import org.hurricane.driver.datatypes.AtomCacheRef;
 import org.hurricane.driver.datatypes.Binary;
-import org.hurricane.driver.datatypes.NewFunction;
+import org.hurricane.driver.datatypes.BitBinary;
 import org.hurricane.driver.datatypes.ErlFunction;
 import org.hurricane.driver.datatypes.Export;
+import org.hurricane.driver.datatypes.NewFunction;
 import org.hurricane.driver.datatypes.NewReference;
-import org.hurricane.driver.datatypes.BitBinary;
+import org.hurricane.driver.datatypes.Nil;
+import org.hurricane.driver.datatypes.Pid;
+import org.hurricane.driver.datatypes.Port;
+import org.hurricane.driver.datatypes.Reference;
+import org.hurricane.driver.datatypes.Tuple;
 
 public class Driver {
     static class DecodeTest {
@@ -222,7 +223,7 @@ public class Driver {
 
         Tuple shortTuple = new Tuple();
         for (Integer i = 0; i < 10; i++) {
-            shortTuple.append(i.byteValue());
+            shortTuple.elements().add(i.byteValue());
         }
         encodeTests.add(
             new EncodeTest(
@@ -236,9 +237,9 @@ public class Driver {
         Tuple longTuple = new Tuple();
         for (Integer i = 0; i < 400; i++) {
             if (i < 256) {
-                longTuple.append(i.byteValue());
+                longTuple.elements().add(i.byteValue());
             } else {
-                longTuple.append(i);
+                longTuple.elements().add(i);
             }
         }
         encodeTests.add(
@@ -432,7 +433,6 @@ public class Driver {
         StreamEmulator stream = new StreamEmulator();
 
         EncodeTest encodeTest;
-        byte[] actual;
         ArrayList<EncodeFailure> failures = new ArrayList<EncodeFailure>();
         System.out.print("Encode: ");
         for (int i = 0; i < encodeTests.size(); i++) {
@@ -487,10 +487,6 @@ public class Driver {
             )
         );
 
-        int[] floatExtTestBytes = {
-            131,99,49,46,49,48,48,48,48,48,48,48,48,48,48,48,48,
-            48,48,48,56,56,56,50,101,43,48,48,0,0,0,0,0
-        };
         decodeTests.add(
             new DecodeTest(
                 Utils.toBytes(

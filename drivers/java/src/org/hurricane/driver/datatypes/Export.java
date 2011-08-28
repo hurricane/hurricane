@@ -1,9 +1,5 @@
 package org.hurricane.driver.datatypes;
 
-import java.util.ArrayList;
-import org.hurricane.driver.datatypes.Base;
-import org.hurricane.driver.datatypes.Pid;
-
 public class Export extends Base {
     public Object mModule;
     public Object mFunction;
@@ -14,7 +10,7 @@ public class Export extends Base {
         mFunction = function;
         mArity = arity;
     }
-    
+
     public String toString() {
         return mModule + ":" + mFunction + "/" + mArity;
     }

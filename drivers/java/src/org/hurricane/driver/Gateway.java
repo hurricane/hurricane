@@ -1,13 +1,6 @@
 package org.hurricane.driver;
 
 import java.io.IOException;
-import org.hurricane.driver.Encoder;
-import org.hurricane.driver.Decoder;
-import org.hurricane.driver.StreamInterface;
-import org.hurricane.driver.StdioWrapper;
-import org.hurricane.driver.SocketWrapper;
-import org.hurricane.driver.StreamEmulator;
-import org.hurricane.driver.Utils;
 
 public class Gateway {
     private StreamInterface mStream;
@@ -39,7 +32,8 @@ public class Gateway {
     public Object recv() throws RuntimeException, IOException {
         byte[] messageLenBytes = mStream.read(4);
         if (messageLenBytes.length < 4) {
-            throw new RuntimeException("Message size payload should be 4 bytes!");
+            throw new RuntimeException(
+                    "Message size payload should be 4 bytes!");
         }
 
         Integer messageLen = Utils.unpackNumber(messageLenBytes).intValue();

@@ -1,7 +1,6 @@
 package org.hurricane.driver.datatypes;
 
 import org.hurricane.driver.Utils;
-import org.hurricane.driver.datatypes.Base;
 
 public class Binary extends Base {
     public byte[] mData;

@@ -1,3 +1,4 @@
 package org.hurricane.driver.datatypes;
 
-public abstract class Base {}
+public abstract class Base {
+}
