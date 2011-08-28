@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""Run tests to ensure that Erlang encoding/decoding works flawlessly."""
+
 import os
 import sys
 sys.path.append(
