@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+# Implementation of the Erlang binary protocol.
+#
+# Provides facilities to work with Standard I/O streams, sockets, and
+# Erlang binary messages.
+
 require 'socket'
 require 'stringio'
 
@@ -12,13 +17,16 @@ else
   Erlang::MACHINE_ENDIANNESS = 'LITTLE_ENDIAN'
 end
 
+# Return a HEX representation of the given string.
 def Erlang::hexlify(msg)
     msg.bytes().map() { |b| b.to_s(16) }.join('')
 end
 
+# Emulates a stream. Highly useful for debugging.
 class Erlang::StreamEmulator
   attr_reader :data
 
+  # Initialize the stream emulator with an optional data argument.
   def initialize(data=nil)
     @data = ''
     if not data.eql?(nil)
@@ -27,6 +35,8 @@ class Erlang::StreamEmulator
     @pos = 0
   end
 
+  # Read bytes number of data and return it. Raise an IndexError if there
+  # aren't enough bytes to be read.
   def read(num)
     data = @data.bytes().to_a()
     if data.size() < @pos + num
@@ -37,6 +47,7 @@ class Erlang::StreamEmulator
     read_data.map() { |c| c.chr() }.join('')
   end
 
+  # Write either binary data or a list of bytes to the stream.
   def write(data)
     if data.class().eql?(Array)
       data = data.map() { |b| b.chr() }.join('')
@@ -44,191 +55,240 @@ class Erlang::StreamEmulator
     @data << data
   end
 
+  # Exist for interface completeness.
   def flush()
   end
 
+  # Reset the position and clear the data buffer.
   def clear()
     data = ''
     pos = 0
   end
 
+  # Exist for interface completeness.
   def close()
   end
 end
 
+# Wraps Standard I/O input and output facilities; exposes a standard
+# stream interface.
 class Erlang::StdioWrapper
+
+  # Read the specified number of bytes.
   def read(num)
     STDIN.read(num)
   end
 
+  # Write the given data.
   def write(data)
     STDOUT.write(data)
   end
 
+  # Override buffering and flush all data to Standard Out.
   def flush()
     STDOUT.flush()
   end
 
+  # Exist for interface completeness.
   def close()
   end
 end
 
+# Wraps socket creation and usage logic in the standard stream interface.
 class Erlang::SocketWrapper
+
+  # Open a socket to the given host and port.
   def initialize(host, port)
     @sock = TCPSocket.new(host, port)
   end
 
+  # Read the specified number of bytes.
   def read(num)
     @sock.recv(num)
   end
 
+  # Write the given data.
   def write(data)
     @sock.write(data)
   end
 
+  # Exist for interface completeness.
   def flush()
   end
 
+  # Close the socket.
   def close()
     @sock.close()
   end
 end
 
+# Implements a tuple object to be used with Erlang messaging.
 class Erlang::Tuple
   attr_accessor :data
 
+  # Set the initial data of the tuple to be the given data.
   def initialize(data)
     @data = data
   end
 
+  # Return a human-readble representation of the object.
   def to_s()
     @data.to_s()
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @data.eql?(other.data)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang atom cache ref.
 class Erlang::AtomCacheRef
   attr_accessor :value
 
+  # Set the given data on the object.
   def initialize(value)
     @value = value
   end
 
+  # Return the human-readble representation.
   def to_s()
     "AtomCacheRef: #{@value}"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @value.eql?(other.value)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang atom.
 class Erlang::Atom
   attr_accessor :name
 
+  # Set the given data on the object.
   def initialize(name)
     @name = name
   end
 
+  # Return the human-readble representation.
   def to_s()
     @name
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @name.eql?(other.name)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang reference.
 class Erlang::Reference
   attr_accessor :atom, :identifier, :creation
 
+  # Set the given data on the object.
   def initialize(atom, identifier, creation)
     @atom = atom
     @identifier = identifier
     @creation = creation
   end
 
+  # Return the human-readble representation.
   def to_s()
     "#{@atom}#Ref<#{@creation}, #{@identifier}>"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @atom.eql?(other.atom) &&
     @creation.eql?(other.creation) &&
     @identifier.eql?(other.identifier)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang "new reference" (a reference created at runtime).
 class Erlang::NewReference
   attr_accessor :atom, :creation, :ids
 
+  # Set the given data on the object.
   def initialize(atom, creation, ids)
     @atom = atom
     @creation = creation
     @ids = ids
   end
 
+  # Return the human-readble representation.
   def to_s()
     "#{@atom}#Ref<#{creation}.#{@ids.join('.')}>"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @atom.eql?(other.atom) &&
     @creation.eql?(other.creation) &&
     @ids.eql?(other.ids)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang port.
 class Erlang::Port
   attr_accessor :atom, :identifier, :creation
 
+  # Set the given data on the object.
   def initialize(atom, identifier, creation)
     @atom = atom
     @identifier = identifier
     @creation = creation
   end
 
+  # Return the human-readble representation.
   def to_s()
     "#{@atom}#Port<#{@identifier}.#{@creation}>"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @atom.eql?(other.atom) &&
     @identifier.eql?(other.identifier) &&
     @creation.eql?(other.creation)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang pid.
 class Erlang::Pid
   attr_accessor :atom, :identifier, :serial, :creation
 
+  # Set the given data on the object.
   def initialize(atom, identifier, serial, creation)
     @atom = atom
     @identifier = identifier
@@ -236,10 +296,12 @@ class Erlang::Pid
     @creation = creation
   end
 
+  # Return the human-readble representation.
   def to_s()
     "#{@atom}:<#{@serial}.#{@identifier}.#{@creation}>"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @atom.eql?(other.atom) &&
     @identifier.eql?(other.identifier) &&
@@ -247,81 +309,99 @@ class Erlang::Pid
     @creation.eql?(other.creation)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang binary.
 class Erlang::Binary
   attr_accessor :data
 
+  # Set the given data on the object.
   def initialize(data)
     @data = data
   end
 
+  # Return the human-readble representation.
   def to_s()
     "<<#{@data.bytes().map() { |b| b }.join(',')}>>"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @data.eql?(other.data)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang bit binary.
 class Erlang::BitBinary
   attr_accessor :bits, :data
 
+  # Set the given data on the object.
   def initialize(bits, data)
     @bits = bits
     @data = data
   end
 
+  # Return the human-readble representation.
   def to_s()
     bytes = @data.bytes().to_a()
     "<<#{bytes[0..bytes.size() - 2].join(',')},#{bytes.last()}:#{@bits}>>"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @bits.eql?(other.bits) &&
     @data.eql?(other.data)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang export.
 class Erlang::Export
   attr_accessor :module, :function, :arity
 
+  # Set the given data on the object.
   def initialize(mod, function, arity)
     @module = mod
     @function = function
     @arity = arity
   end
 
+  # Return the human-readble representation.
   def to_s()
     "#{@module}:#{@function}/#{@arity}"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @module.eql?(other.module) &&
     @function.eql?(other.function) &&
     @arity.eql?(other.arity)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang function (defined at compile-time).
 class Erlang::Function
   attr_accessor :pid, :module, :index, :uniq, :free_vars
 
+  # Set the given data on the object.
   def initialize(pid, mod, index, uniq, free_vars)
     @pid = pid
     @module = mod
@@ -330,10 +410,12 @@ class Erlang::Function
     @free_vars = free_vars
   end
 
+  # Return the human-readble representation.
   def to_s()
     "#{@module}:#{@uniq}"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @pid.eql?(other.pid) &&
     @module.eql?(other.module) &&
@@ -342,14 +424,18 @@ class Erlang::Function
     @free_vars.eql?(other.free_vars)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Implements an Erlang function (created at run-time, usually with
+# the fun () -> end syntax).
 class Erlang::NewFunction
   attr_accessor :arity, :uniq, :index, :module, :old_index, :old_uniq, :pid, :free_vars
 
+  # Set the given data on the object.
   def initialize(arity, uniq, index, mod, old_index, old_uniq, pid, free_vars)
     @arity = arity
     @uniq = uniq
@@ -361,10 +447,12 @@ class Erlang::NewFunction
     @free_vars = free_vars
   end
 
+  # Return the human-readble representation.
   def to_s()
     "#{@module}:#{Erlang::hexlify(@uniq)}/#{@arity}"
   end
 
+  # Compares self to another object for equality.
   def eql?(other)
     @arity.eql?(other.arity) &&
     @uniq.eql?(other.uniq) &&
@@ -376,16 +464,19 @@ class Erlang::NewFunction
     @free_vars.eql?(other.free_vars)
   end
 
+  # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
   end
 end
 
+# Decode and return an Erlang atom.
 def Erlang::decode_atom_ext(stream)
   atom_len = stream.read(2).unpack('n')[0]
   Erlang::Atom.new(stream.read(atom_len))
 end
 
+# Decode and return an Erlang reference.
 def Erlang::decode_reference_ext(stream)
   atom = Erlang::decode(stream, false)
   identifier = stream.read(4).unpack('N')[0]
@@ -393,6 +484,7 @@ def Erlang::decode_reference_ext(stream)
   Erlang::Reference.new(atom, identifier, creation)
 end
 
+# Decode and return an Erlang port.
 def Erlang::decode_port_ext(stream)
   atom = Erlang::decode(stream, false)
   identifier = stream.read(4).unpack('N')[0]
@@ -400,6 +492,7 @@ def Erlang::decode_port_ext(stream)
   Erlang::Port.new(atom, identifier, creation)
 end
 
+# Decode and return an Erlang pid.
 def Erlang::decode_pid_ext(stream)
   atom = Erlang::decode(stream, false)
   identifier = stream.read(4).unpack('N')[0]
@@ -408,6 +501,7 @@ def Erlang::decode_pid_ext(stream)
   Erlang::Pid.new(atom, identifier, serial, creation)
 end
 
+# Decode and return a small Erlang tuple (fewer than 256 elements).
 def Erlang::decode_small_tuple_ext(stream)
   tuple_len = stream.read(1)[0]
   elements = []
@@ -418,6 +512,7 @@ def Erlang::decode_small_tuple_ext(stream)
   Erlang::Tuple.new(elements)
 end
 
+# Decode and return a large Erlang tuple (more than 256 elements).
 def Erlang::decode_large_tuple_ext(stream)
   tuple_len = stream.read(4).unpack('N')[0]
   elements = []
@@ -428,15 +523,23 @@ def Erlang::decode_large_tuple_ext(stream)
   Erlang::Tuple.new(elements)
 end
 
+# Decode and return a nil/null/None.
 def Erlang::decode_nil_ext(stream)
   return nil
 end
 
+# Decode and return a string.
 def Erlang::decode_string_ext(stream)
   str_len = stream.read(2).unpack('n')[0]
   return stream.read(str_len)
 end
 
+# Decode and return a list.
+#
+# Depending on the list contents, a string may be returned. This will
+# be the case if the list contains only byte values, which means that
+# the list is actually intending to be a string, but being capped by
+# Erlangs 65K char limit for strings (before they overflow into a list).
 def Erlang::decode_list_ext(stream)
   list_len = stream.read(4).unpack('N')[0]
   elements = []
@@ -459,11 +562,13 @@ def Erlang::decode_list_ext(stream)
   end
 end
 
+# Decode and return an Erlang binary.
 def Erlang::decode_binary_ext(stream)
     bin_len = stream.read(4).unpack('N')[0]
     Erlang::Binary.new(stream.read(bin_len))
 end
 
+# Decode and return "small" big number.
 def Erlang::decode_small_big_ext(stream)
   num_bytes = stream.read(1)[0]
   sign = stream.read(1)[0]
@@ -477,6 +582,7 @@ def Erlang::decode_small_big_ext(stream)
   num
 end
 
+# Decode and return "large" big number.
 def Erlang::decode_large_big_ext(stream)
   num_bytes = stream.read(4).unpack('N')[0]
   sign = stream.read(1)[0]
@@ -490,6 +596,7 @@ def Erlang::decode_large_big_ext(stream)
   num
 end
 
+# Decode and return an Erlang "new reference".
 def Erlang::decode_new_reference_ext(stream)
   length = stream.read(2).unpack('n')[0]
   atom = decode(stream, false)
@@ -502,12 +609,14 @@ def Erlang::decode_new_reference_ext(stream)
   Erlang::NewReference.new(atom, creation, identifiers)
 end
 
+# Decode and return a small Erlang atom.
 def Erlang::decode_small_atom_ext(stream)
   atom_len = stream.read(1)[0]
   atom_name = stream.read(atom_len)
   Erlang::Atom.new(atom_name)
 end
 
+# Decode and return an Erlang function.
 def Erlang::decode_fun_ext(stream)
   num_free = stream.read(4).unpack('N')[0]
   pid = decode(stream, false)
@@ -524,6 +633,7 @@ def Erlang::decode_fun_ext(stream)
   Erlang::Function.new(pid, mod, index, uniq, free_vars)
 end
 
+# Decode and return an Erlang "new function".
 def Erlang::decode_new_fun_ext(stream)
   size = stream.read(4).unpack('N')[0]
   arity = stream.read(1)[0]
@@ -544,6 +654,7 @@ def Erlang::decode_new_fun_ext(stream)
   Erlang::NewFunction.new(arity, uniq, index, mod, old_index, old_uniq, pid, free_vars)
 end
 
+# Decode and return an Erlang export.
 def Erlang::decode_export_ext(stream)
   mod = decode(stream, false)
   function = decode(stream, false)
@@ -551,23 +662,28 @@ def Erlang::decode_export_ext(stream)
   Erlang::Export.new(mod, function, arity)
 end
 
+# Decode and return an IEEE 8-byte floating-point number.
 def Erlang::decode_new_float_ext(stream)
   stream.read(8).unpack('G')[0]
 end
 
+# Decode and return an Erlang bit binary.
 def Erlang::decode_bit_binary_ext(stream)
   length = stream.read(4).unpack('N')[0]
   Erlang::BitBinary.new(stream.read(1)[0], stream.read(length))
 end
 
+# Decode and return an Erlang atom cache ref.
 def Erlang::decode_atom_cache_ref(stream)
     Erlang::AtomCacheRef.new(stream.read(1)[0])
 end
 
+# Decode and return a small integer (byte).
 def Erlang::decode_small_integer_ext(stream)
   stream.read(1)[0]
 end
 
+# Decode and return an integer.
 def Erlang::decode_integer_ext(stream)
   bin = stream.read(4)
   if Erlang::MACHINE_ENDIANNESS.eql?('LITTLE_ENDIAN')
@@ -576,10 +692,17 @@ def Erlang::decode_integer_ext(stream)
   bin.unpack('l')[0]
 end
 
+# Decode and return a float (represented by Erlang as a string).
 def Erlang::decode_float_ext(stream)
     stream.read(31).bytes().map() { |c| c.chr() }.join('').to_f()
 end
 
+# Decode a single value from the given stream and return it.
+#
+# If check_dist_tag, check to see that the first byte is 131 (this is
+# how Erlang flags the beginning of every data type). This check does
+# not need to be performed when recursively decoding nested data types,
+# hence the optional argument.
 def Erlang::decode(stream, check_dist_tag=true)
   first_byte = stream.read(1)[0]
   if check_dist_tag
@@ -643,11 +766,13 @@ def Erlang::decode(stream, check_dist_tag=true)
   end
 end
 
+# Encode a floating-point number into the stream.
 def Erlang::encode_float(data, stream)
   stream.write(70.chr())
   stream.write([data].pack('G'))
 end
 
+# Encode an Erlang bit binary into the stream.
 def Erlang::encode_bit_binary(data, stream)
   stream.write((77.chr()))
   stream.write([data.data.size()].pack('N'))
@@ -655,16 +780,19 @@ def Erlang::encode_bit_binary(data, stream)
   stream.write(data.data)
 end
 
+# Encode an Erlang atom cache ref into the stream.
 def Erlang::encode_atom_cache_ref(data, stream)
   stream.write(82.chr())
   stream.write(data.value.chr())
 end
 
+# Encode a small integer (byte) into the stream.
 def Erlang::encode_small_integer(data, stream)
   stream.write(97.chr())
   stream.write(data.chr())
 end
 
+# Encode an integer into the stream.
 def Erlang::encode_integer(data, stream)
   stream.write(98.chr())
   bin = [data].pack('L')
@@ -674,6 +802,7 @@ def Erlang::encode_integer(data, stream)
   stream.write(bin)
 end
 
+# Encode a large number into the stream.
 def Erlang::encode_long(data, stream)
   if data < 0
     data *= -1
@@ -699,6 +828,7 @@ def Erlang::encode_long(data, stream)
   stream.write(bytes.map() { |b| b.chr() }.join(''))
 end
 
+# Encode any-size number into the stream.
 def Erlang::encode_number(data, stream)
   if 0 <= data && data <= 0xff
     encode_small_integer(data, stream)
@@ -709,6 +839,7 @@ def Erlang::encode_number(data, stream)
   end
 end
 
+# Encode an Erlang atom into the stream.
 def Erlang::encode_atom(data, stream)
   name_len = data.name.bytesize()
   if name_len <= 0xf
@@ -721,6 +852,7 @@ def Erlang::encode_atom(data, stream)
   stream.write(data.name)
 end
 
+# Encode an Erlang reference into the stream.
 def Erlang::encode_reference(data, stream)
   stream.write(101.chr())
   encode(data.atom, stream, false)
@@ -728,6 +860,7 @@ def Erlang::encode_reference(data, stream)
   stream.write(data.creation.chr())
 end
 
+# Encode an Erlang port into the stream.
 def Erlang::encode_port(data, stream)
   stream.write(102.chr())
   encode(data.atom, stream, false)
@@ -735,6 +868,7 @@ def Erlang::encode_port(data, stream)
   stream.write(data.creation.chr())
 end
 
+# Encode an Erlang pid into the stream.
 def Erlang::encode_pid(data, stream)
   stream.write(103.chr())
   encode(data.atom, stream, false)
@@ -743,6 +877,7 @@ def Erlang::encode_pid(data, stream)
   stream.write(data.creation.chr())
 end
 
+# Encode a tuple into the stream.
 def Erlang::encode_tuple(data, stream)
   data_len = data.data.size()
   if data_len < 256
@@ -757,10 +892,12 @@ def Erlang::encode_tuple(data, stream)
   end
 end
 
+# Encode a NoneType into the stream (as Erlang nil).
 def Erlang::encode_none(data, stream)
   stream.write(106.chr())
 end
 
+# Encode a string into the stream.
 def Erlang::encode_str(data, stream)
   data_len = data.bytesize()
   if data_len > 0xffff
@@ -772,6 +909,7 @@ def Erlang::encode_str(data, stream)
   end
 end
 
+# Encode a list into the stream.
 def Erlang::encode_list(data, stream)
   data_len = data.size()
   stream.write(108.chr())
@@ -782,12 +920,14 @@ def Erlang::encode_list(data, stream)
   stream.write(106.chr())
 end
 
+# Encode an Erlang binary into the stream.
 def Erlang::encode_binary(data, stream)
   stream.write(109.chr())
   stream.write([data.data.size()].pack('N'))
   stream.write(data.data)
 end
 
+# Encode an Erlang new reference into the stream.
 def Erlang::encode_new_reference(data, stream)
   stream.write(114.chr())
   ids_len = data.ids.size()
@@ -799,6 +939,7 @@ def Erlang::encode_new_reference(data, stream)
   end
 end
 
+# Encode an Erlang function into the stream.
 def Erlang::encode_function(data, stream)
   stream.write(117.chr())
   free_vars_len = data.free_vars.size()
@@ -814,6 +955,7 @@ def Erlang::encode_function(data, stream)
   end
 end
 
+# Encode an Erlang "new function" into the stream.
 def Erlang::encode_new_function(data, stream)
   stream.write(112.chr())
   free_vars_len = data.free_vars.size()
@@ -838,6 +980,7 @@ def Erlang::encode_new_function(data, stream)
   stream.write(bytes_value)
 end
 
+# Encode an Erlang bit binary into the stream.
 def Erlang::encode_bit_binary(data, stream)
   stream.write(77.chr())
   stream.write([data.data.size()].pack('N'))
@@ -845,6 +988,7 @@ def Erlang::encode_bit_binary(data, stream)
   stream.write(data.data)
 end
 
+# Encode an Erlang export into the stream.
 def Erlang::encode_export(data, stream)
   stream.write(113.chr())
   encode(data.module, stream, false)
@@ -852,6 +996,7 @@ def Erlang::encode_export(data, stream)
   encode(data.arity, stream, false)
 end
 
+# Encode a hash into the stream (as a property list).
 def Erlang::encode_hash(data, stream)
   proplist = []
   data.each_pair() do |key, value|
@@ -860,6 +1005,12 @@ def Erlang::encode_hash(data, stream)
   Erlang::encode(proplist, stream, false)
 end
 
+# Encode the given data into the given stream.
+#
+# If send_magic_byte, the value 131 is sent before anything (this is
+# how Erlang denotes that there is a new piece of data coming across).
+# However, for nested data, this only needs to be sent once, hence
+# the optional argument.
 def Erlang::encode(data, stream, send_magic_byte=true)
   if send_magic_byte
     stream.write(131.chr())
@@ -911,7 +1062,12 @@ def Erlang::encode(data, stream, send_magic_byte=true)
   end
 end
 
+# Implements a class that can be used to conveniently interface with
+# Hurricane to send/receive messages.
 class Erlang::Gateway
+
+  # Initialize with an optional stream. If no stream is provided,
+  # Standard I/O will be used.
   def initialize(stream)
     if stream.eql?(nil)
       @stream = Erlang::StdioWrapper.new()
@@ -921,17 +1077,20 @@ class Erlang::Gateway
     @stream_wrapper = Erlang::StreamEmulator.new()
   end
 
+  # Close any open stream and set the new one.
   def stream=(stream)
     close()
     @stream = stream
   end
 
+  # If there is an active stream, close it.
   def close()
     if not @stream.eql?(nil)
       @stream.close()
     end
   end
 
+  # Receives one message from Hurricane.
   def recv()
     message_len = @stream.read(4)
 
@@ -945,6 +1104,7 @@ class Erlang::Gateway
     Erlang::decode(@stream_wrapper)
   end
 
+  # Sends one message to Hurricane.
   def send(message)
     @stream_wrapper.clear()
     Erlang::encode(message, @stream_wrapper)

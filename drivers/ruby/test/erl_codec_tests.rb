@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# Run tests to ensure that Erlang encoding/decoding works flawlessly.
+
 $:.push(File.dirname(File.dirname(File.expand_path(__FILE__))))
 require 'erl_codec'
 
