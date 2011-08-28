@@ -8,14 +8,15 @@ public class TcpExample {
     public static void main(String[] args) throws Exception {
         Gateway gateway = new Gateway("localhost", 3307);
 
+        Tuple sendMsg;
         while (true) {
-            gateway.send(
-                new Tuple()
-                    .append(new Atom("request"))
-                    .append(new Atom("time_server"))
-                    .append(new Atom("time_message"))
-                    .append(new Nil())
-            );
+            sendMsg = new Tuple();
+            sendMsg.elements().add(new Atom("request"));
+            sendMsg.elements().add(new Atom("time_server"));
+            sendMsg.elements().add(new Atom("time_message"));
+            sendMsg.elements().add(new Nil());
+            gateway.send(sendMsg);
+
             System.out.println(gateway.recv());
         }
     }
