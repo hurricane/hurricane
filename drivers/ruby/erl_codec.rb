@@ -38,13 +38,12 @@ class Erlang::StreamEmulator
   # Read bytes number of data and return it. Raise an IndexError if there
   # aren't enough bytes to be read.
   def read(num)
-    data = @data.bytes().to_a()
-    if data.size() < @pos + num
+    if @data.bytesize() < @pos + num
       raise IndexError.new("Out of data to read (was asked for #{num} byte(s), only #{data.size() - pos} byte(s) remain)")
     end
-    read_data = data[@pos..@pos + num - 1]
+    read_data = @data[@pos..@pos + num - 1]
     @pos += num
-    read_data.map() { |c| c.chr() }.join('')
+    read_data
   end
 
   # Write either binary data or a list of bytes to the stream.
