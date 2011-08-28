@@ -14,7 +14,7 @@ from cStringIO import StringIO
 from sys import stdin, stdout, stderr
 
 class StreamEmulator(object):
-    """Emulate a stream. Highly useful for debugging."""
+    """Emulates a stream. Highly useful for debugging."""
 
     def __init__(self, data=None):
         """Initialize the stream emulator with an optional data argument."""
@@ -58,7 +58,7 @@ class StreamEmulator(object):
 
 class StdioWrapper(object):
     """
-    Wrap Standard I/O input and output facilities, expose a standard
+    Wraps Standard I/O input and output facilities; exposes a standard
     stream interface.
     """
 
@@ -80,7 +80,7 @@ class StdioWrapper(object):
 
 class SocketWrapper(object):
     """
-    Wrap socket creation and usage logic in the standard stream interface.
+    Wraps socket creation and usage logic in the standard stream interface.
     """
 
     def __init__(self, host, port):
@@ -105,7 +105,7 @@ class SocketWrapper(object):
         self.socket.close()
 
 class AtomCacheRef(object):
-    """Implement an Erlang atom cache ref."""
+    """Implements an Erlang atom cache ref."""
 
     def __init__(self, value):
         """Set the given value as the value of this cache ref."""
@@ -124,7 +124,7 @@ class AtomCacheRef(object):
         return self.value == other.value
 
 class Atom(object):
-    """Implement an Erlang atom."""
+    """Implements an Erlang atom."""
 
     def __init__(self, name):
         """Set the given name on the atom."""
@@ -143,7 +143,7 @@ class Atom(object):
         return self.name == other.name
 
 class Reference(object):
-    """Implement an Erlang reference."""
+    """Implements an Erlang reference."""
 
     def __init__(self, atom, identifier, creation):
         """Set the given data on the object."""
@@ -168,7 +168,9 @@ class Reference(object):
                self.creation == other.creation
 
 class NewReference(object):
-    """Implement an Erlang "new reference" (a reference created at runtime)."""
+    """
+    Implements an Erlang "new reference" (a reference created at runtime).
+    """
 
     def __init__(self, atom, creation, ids):
         """Set the given data on the object."""
@@ -195,7 +197,7 @@ class NewReference(object):
                self.ids == other.ids
 
 class Port(object):
-    """Implement an Erlang port."""
+    """Implements an Erlang port."""
 
     def __init__(self, atom, identifier, creation):
         """Set the given data on the object."""
@@ -220,7 +222,7 @@ class Port(object):
                self.creation == other.creation
 
 class Pid(object):
-    """Implement an Erlang pid (process identifier)."""
+    """Implements an Erlang pid (process identifier)."""
 
     def __init__(self, atom, identifier, serial, creation):
         """Set the given data on the object."""
@@ -251,7 +253,7 @@ class Pid(object):
 
 class Binary(object):
     """
-    Implement an Erlang binary data container.
+    Implements an Erlang binary data container.
 
     This is the fastest way to transfer data around.
     """
@@ -274,7 +276,7 @@ class Binary(object):
 
 class BitBinary(object):
     """
-    Implement an Erlang bit binary (a more efficient way of encoding a
+    Implements an Erlang bit binary (a more efficient way of encoding a
     string).
     """
 
@@ -298,7 +300,7 @@ class BitBinary(object):
                self.data == other.data
 
 class Export(object):
-    """Implement an Erlang export."""
+    """Implements an Erlang export."""
 
     def __init__(self, module, function, arity):
         """Set the given data on the object."""
@@ -323,7 +325,7 @@ class Export(object):
                self.arity == other.arity
 
 class Function(object):
-    """Implement an Erlang function (defined at compile-time)."""
+    """Implements an Erlang function (defined at compile-time)."""
 
     def __init__(self, pid, module, index, uniq, free_vars):
         """Set the given data on the object."""
@@ -356,7 +358,7 @@ class Function(object):
 
 class NewFunction(object):
     """
-    Implement an Erlang function (created at run-time, usually with
+    Implements an Erlang function (created at run-time, usually with
     the fun () -> end syntax).
     """
 
@@ -875,7 +877,7 @@ def encode(data, stream, send_magic_byte=True):
 
 class Gateway:
     """
-    Implement a class that can be used to conveniently interface with
+    Implements a class that can be used to conveniently interface with
     Hurricane to send/receive messages.
     """
 
