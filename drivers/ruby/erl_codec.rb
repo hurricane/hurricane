@@ -947,7 +947,7 @@ def Erlang::encode_function(data, stream)
   encode(data.module, stream, false)
   encode(data.index, stream, false)
   encode(data.uniq, stream, false)
-  if free_vars_len > 0:
+  if free_vars_len > 0
     data.free_vars.each() do |free_var|
       stream.write([free_var].pack('N'))
     end
@@ -967,7 +967,7 @@ def Erlang::encode_new_function(data, stream)
   encode(data.old_index, bytes, false)
   encode(data.old_uniq, bytes, false)
   encode(data.pid, bytes, false)
-  if free_vars_len > 0:
+  if free_vars_len > 0
     data.free_vars.each() do |free_var|
       stream.write([free_var].pack('N'))
     end
