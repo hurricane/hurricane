@@ -1,13 +1,5 @@
 <?php
 
-if (!defined('MACHINE_ENDIANNESS')) {
-    if (reset(unpack('L', "\x00\x00\x00\x01")) == 1) {
-        define('MACHINE_ENDIANNESS', 'BIG_ENDIAN');
-    } else {
-        define('MACHINE_ENDIANNESS', 'LITTLE_ENDIAN');
-    }
-}
-
 /**
  * Implementation of the Erlang binary protocol.
  *
@@ -15,6 +7,14 @@ if (!defined('MACHINE_ENDIANNESS')) {
  * Erlang binary messages.
  */
 namespace Erlang;
+
+if (!defined('MACHINE_ENDIANNESS')) {
+    if (reset(unpack('L', "\x00\x00\x00\x01")) == 1) {
+        define('MACHINE_ENDIANNESS', 'BIG_ENDIAN');
+    } else {
+        define('MACHINE_ENDIANNESS', 'LITTLE_ENDIAN');
+    }
+}
 
 /**
  * Provides an Exception type that can be thrown and caught for
