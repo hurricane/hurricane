@@ -706,7 +706,7 @@ def Erlang::decode(stream, check_dist_tag=true)
   first_byte = stream.read(1)[0]
   if check_dist_tag
     if not first_byte.eql?(131)
-      raise ArgumentError('This is not an Erlang EXT datatype')
+      raise ArgumentError.new('This is not an Erlang EXT datatype')
     else
       ext_code = stream.read(1)[0]
     end
