@@ -1089,7 +1089,7 @@ class Erlang::Gateway
     end
   end
 
-  # Receives one message from Hurricane.
+  # Receive one message from Hurricane.
   def recv()
     message_len = @stream.read(4)
 
@@ -1103,7 +1103,7 @@ class Erlang::Gateway
     Erlang::decode(@stream_wrapper)
   end
 
-  # Sends one message to Hurricane.
+  # Send one message to Hurricane.
   def send(message)
     @stream_wrapper.clear()
     Erlang::encode(message, @stream_wrapper)
