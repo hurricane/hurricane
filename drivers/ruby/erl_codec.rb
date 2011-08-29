@@ -538,7 +538,7 @@ end
 # Depending on the list contents, a string may be returned. This will
 # be the case if the list contains only byte values, which means that
 # the list is actually intending to be a string, but being capped by
-# Erlangs 65K char limit for strings (before they overflow into a list).
+# Erlang's 65K char limit for strings (before they overflow into a list).
 def Erlang::decode_list_ext(stream)
   list_len = stream.read(4).unpack('N')[0]
   elements = []
