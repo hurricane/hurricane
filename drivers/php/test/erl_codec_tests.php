@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Run tests to ensure that Erlang encoding/decoding works flawlessly.
+ */
+
 require dirname(__FILE__) . '/../erl_codec.php';
 
 $decode_tests = array(
