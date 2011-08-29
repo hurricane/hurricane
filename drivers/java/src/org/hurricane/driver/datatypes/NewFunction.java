@@ -2,16 +2,63 @@ package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
 
+/**
+ * Implements an Erlang function (created at run-time, usually with the fun ()
+ * -> end syntax).
+ */
 public class NewFunction {
+    /**
+     * The arity of this new function.
+     */
     public Byte mArity;
+
+    /**
+     * The unique BEAM identifier of this new function.
+     */
     public String mUniq;
+
+    /**
+     * The BEAM index of this new function.
+     */
     public Integer mIndex;
+
+    /**
+     * The module where this new function originated.
+     */
     public Object mModule;
+
+    /**
+     * The old BEAM index for this new function (for code swapping).
+     */
     public Object mOldIndex;
+
+    /**
+     * The old unique BEAM identifier for this new function (for code swapping).
+     */
     public Object mOldUniq;
+
+    /**
+     * The pid of the process that created this new function.
+     */
     public Pid mPid;
+
+    /**
+     * The nested structure of this new function.
+     */
     public ArrayList<Object> mFreeVars;
 
+    /**
+     * Set the given data on the object.
+     * 
+     * @param arity
+     * @param uniq
+     * @param index
+     * @param module
+     * @param oldIndex
+     * @param oldUniq
+     * @param pid
+     * @param freeVars
+     */
     public NewFunction(Byte arity, String uniq, Integer index, Object module,
             Object oldIndex, Object oldUniq, Pid pid, ArrayList<Object> freeVars) {
         mArity = arity;
@@ -24,6 +71,12 @@ public class NewFunction {
         mFreeVars = freeVars;
     }
 
+    /**
+     * Return the unique BEAM identifier for this new function as a hexadecimal
+     * string.
+     * 
+     * @return
+     */
     public String uniqToHex() {
         StringBuilder builder = new StringBuilder();
         byte[] bytes = mUniq.getBytes();
@@ -39,10 +92,18 @@ public class NewFunction {
         return builder.toString();
     }
 
+    /**
+     * Return a human-readable representation of the object.
+     */
     public String toString() {
         return mModule + ":" + uniqToHex() + "/" + mArity;
     }
 
+    /**
+     * Compares this to another object for equality.
+     * 
+     * @param other
+     */
     @Override
     public boolean equals(Object other) {
         if (other instanceof NewFunction) {

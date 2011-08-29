@@ -1,10 +1,28 @@
 package org.hurricane.driver;
 
+/**
+ * Contains common utilities used throughout this adapter (mostly for working
+ * with binary data).
+ */
 public class Utils {
+    /**
+     * Defines the value for a little endian architecture.
+     */
     public static final Integer LITTLE_ENDIAN = 1;
+
+    /**
+     * Defines the value for a big endian architecture.
+     */
     public static final Integer BIG_ENDIAN = 2;
+
+    /**
+     * Stores the endianness value detected for the current machine.
+     */
     public static Integer ENDIANNESS;
 
+    /**
+     * Detect the machine endianness.
+     */
     static {
         int t = 1 | 0 << 8 | 0 << 16 | 0 << 24;
         if (t == 1) {
@@ -14,6 +32,13 @@ public class Utils {
         }
     }
 
+    /**
+     * Compare two byte arrays for equality.
+     * 
+     * @param a
+     * @param b
+     * @return true if equal, false otherwise
+     */
     public static Boolean compareBytes(byte[] a, byte[] b) {
         if (a.length != b.length) {
             return false;
@@ -28,6 +53,12 @@ public class Utils {
         return true;
     }
 
+    /**
+     * Make a string from the given bytes.
+     * 
+     * @param b
+     * @return A string
+     */
     public static String bytesToString(byte[] b) {
         StringBuilder builder = new StringBuilder();
 
@@ -39,6 +70,12 @@ public class Utils {
         return builder.toString();
     }
 
+    /**
+     * Reverse bytes in an array (used on little endian machines).
+     * 
+     * @param bytes
+     * @return the reversed bytes
+     */
     public static byte[] reverseBytes(byte[] bytes) {
         Byte swap;
         for (Integer i = 0; i < bytes.length / 2; i++) {
@@ -49,6 +86,12 @@ public class Utils {
         return bytes;
     }
 
+    /**
+     * Take a variadic number of bytes and return a single byte array of them.
+     * 
+     * @param is
+     * @return
+     */
     public static byte[] toBytes(int... is) {
         byte[] bs = new byte[is.length];
         for (Integer i = 0; i < is.length; i++) {
@@ -57,6 +100,12 @@ public class Utils {
         return bs;
     }
 
+    /**
+     * Converts bytes into an integer value.
+     * 
+     * @param bytes
+     * @return the integer value
+     */
     public static Long unpackNumber(byte[] bytes) {
         Long value = 0L;
         Integer shift = 0;
@@ -74,6 +123,13 @@ public class Utils {
         return value;
     }
 
+    /**
+     * Packs every type of primitive number into a big endian byte format.
+     * 
+     * @param number
+     * @return the packed bytes
+     * @throws UnsupportedOperationException
+     */
     public static byte[] packNumber(Object number)
             throws UnsupportedOperationException {
         if (ENDIANNESS == LITTLE_ENDIAN) {

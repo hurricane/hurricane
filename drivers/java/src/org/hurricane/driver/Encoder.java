@@ -22,7 +22,17 @@ import org.hurricane.driver.datatypes.Port;
 import org.hurricane.driver.datatypes.Reference;
 import org.hurricane.driver.datatypes.Tuple;
 
+/**
+ * Implements all encoder functionality.
+ */
 public class Encoder {
+    /**
+     * Encode a floating-point number into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeDouble(Double data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(70));
@@ -30,6 +40,13 @@ public class Encoder {
         stream.write(Utils.packNumber(value));
     }
 
+    /**
+     * Encode an Erlang bit binary into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeBitBinary(BitBinary data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(77));
@@ -39,30 +56,65 @@ public class Encoder {
         stream.write(binary);
     }
 
+    /**
+     * Encode an Erlang atom cache ref into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeAtomCacheRef(AtomCacheRef data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(82));
         stream.write(Utils.toBytes((int) data.mValue));
     }
 
+    /**
+     * Encode a small integer (byte) into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeByte(Byte data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(97));
         stream.write(Utils.toBytes((int) data));
     }
 
+    /**
+     * Encode a small integer (short) into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeShort(Short data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(98));
         stream.write(Utils.packNumber(data.intValue()));
     }
 
+    /**
+     * Encode an integer into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeInteger(Integer data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(98));
         stream.write(Utils.packNumber(data));
     }
 
+    /**
+     * Encode a large integer (long) into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeLong(Long data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(110));
@@ -78,6 +130,13 @@ public class Encoder {
         stream.write(Utils.reverseBytes(bytes));
     }
 
+    /**
+     * Encode a BigInteger into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeBigInteger(BigInteger data, StreamInterface stream)
             throws IOException {
         byte[] bytes = data.toByteArray();
@@ -98,6 +157,13 @@ public class Encoder {
         stream.write(Utils.reverseBytes(bytes));
     }
 
+    /**
+     * Encode an atom into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeAtom(Atom data, StreamInterface stream)
             throws IOException {
         byte[] bytes = data.mName.getBytes();
@@ -112,6 +178,13 @@ public class Encoder {
         stream.write(bytes);
     }
 
+    /**
+     * Encode an Erlang reference into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeReference(Reference data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(101));
@@ -120,6 +193,13 @@ public class Encoder {
         stream.write(Utils.toBytes((int) data.mCreation));
     }
 
+    /**
+     * Encode an Erlang port into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodePort(Port data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(102));
@@ -128,6 +208,13 @@ public class Encoder {
         stream.write(Utils.toBytes((int) data.mCreation));
     }
 
+    /**
+     * Encode an Erlang pid into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodePid(Pid data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(103));
@@ -137,6 +224,13 @@ public class Encoder {
         stream.write(Utils.toBytes((int) data.mCreation));
     }
 
+    /**
+     * Encode a Tuple into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeTuple(Tuple data, StreamInterface stream)
             throws IOException {
         int size = data.mElements.size();
@@ -153,11 +247,25 @@ public class Encoder {
         }
     }
 
+    /**
+     * Encode a nil/null into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeNil(Nil data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(106));
     }
 
+    /**
+     * Encode an Erlang binary into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeBinary(Binary data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(109));
@@ -165,6 +273,13 @@ public class Encoder {
         stream.write(data.mData);
     }
 
+    /**
+     * Encode a string into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeString(String data, StreamInterface stream)
             throws IOException {
         Integer strLen = data.length();
@@ -180,6 +295,13 @@ public class Encoder {
         }
     }
 
+    /**
+     * Encode a "new reference" into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeNewReference(NewReference data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(114));
@@ -192,6 +314,13 @@ public class Encoder {
         }
     }
 
+    /**
+     * Encode an Erlang function into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeErlFunction(ErlFunction data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(117));
@@ -207,6 +336,13 @@ public class Encoder {
         }
     }
 
+    /**
+     * Encode an Erlang "new function" into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeNewFunction(NewFunction data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(112));
@@ -226,10 +362,17 @@ public class Encoder {
             buffer.write(Utils.packNumber(data.mFreeVars.get(i)));
         }
 
-        stream.write(Utils.packNumber(buffer.mBuffer.size() + 4));
+        stream.write(Utils.packNumber(buffer.size() + 4));
         stream.write(buffer.getBytes());
     }
 
+    /**
+     * Encode an Erlang export into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeExport(Export data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(113));
@@ -238,6 +381,13 @@ public class Encoder {
         encode(data.mArity, stream, false);
     }
 
+    /**
+     * Encode a list into the stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeList(List<Object> data, StreamInterface stream)
             throws IOException {
         Integer listLen = data.size();
@@ -250,6 +400,13 @@ public class Encoder {
         stream.write(Utils.toBytes(106));
     }
 
+    /**
+     * Encode a map into the stream (as a property list).
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encodeMap(Map<Object, Object> data,
             StreamInterface stream) throws IOException {
         ArrayList<Tuple> propList = new ArrayList<Tuple>();
@@ -271,11 +428,31 @@ public class Encoder {
         encode(propList, stream, false);
     }
 
+    /**
+     * Encode the given data into the given stream.
+     * 
+     * @param data
+     * @param stream
+     * @throws IOException
+     */
     public static void encode(Object data, StreamInterface stream)
             throws IOException {
         encode(data, stream, true);
     }
 
+    /**
+     * Encode the given data into the given stream.
+     * 
+     * If sendMagicByte, the value 131 is sent before anything (this is how
+     * Erlang denotes that there is a new piece of data coming across). However,
+     * for nested data, this only needs to be sent once.
+     * 
+     * @param data
+     * @param stream
+     * @param sendMagicByte
+     * @throws UnsupportedOperationException
+     * @throws IOException
+     */
     @SuppressWarnings("unchecked")
     public static void encode(Object data, StreamInterface stream,
             Boolean sendMagicByte) throws UnsupportedOperationException,

@@ -18,32 +18,77 @@ import org.hurricane.driver.datatypes.Port;
 import org.hurricane.driver.datatypes.Reference;
 import org.hurricane.driver.datatypes.Tuple;
 
+/**
+ * Implements all decoder functionality.
+ */
 public class Decoder {
+    /**
+     * Decode and return an Erlang atom cache ref.
+     * 
+     * @param stream
+     * @return The atom cache ref
+     * @throws IOException
+     */
     public static AtomCacheRef decodeAtomCacheRef(StreamInterface stream)
             throws IOException {
         return new AtomCacheRef(stream.read(1)[0]);
     }
 
+    /**
+     * Decode and return a small integer (byte).
+     * 
+     * @param stream
+     * @return The small integer
+     * @throws IOException
+     */
     public static Byte decodeSmallIntegerExt(StreamInterface stream)
             throws IOException {
         return stream.read(1)[0];
     }
 
+    /**
+     * Decode and return an integer.
+     * 
+     * @param stream
+     * @return The integer
+     * @throws IOException
+     */
     public static Integer decodeIntegerExt(StreamInterface stream)
             throws IOException {
         return Utils.unpackNumber(stream.read(4)).intValue();
     }
 
+    /**
+     * Decode and return a float (represented by Erlang as a string).
+     * 
+     * @param stream
+     * @return The double value
+     * @throws IOException
+     */
     public static Double decodeFloatExt(StreamInterface stream)
             throws IOException {
         return new Double(new String(stream.read(31)));
     }
 
+    /**
+     * Decode and return an Erlang atom.
+     * 
+     * @param stream
+     * @return The atom
+     * @throws IOException
+     */
     public static Atom decodeAtomExt(StreamInterface stream) throws IOException {
         Integer atom_len = Utils.unpackNumber(stream.read(2)).intValue();
         return new Atom(new String(stream.read(atom_len)));
     }
 
+    /**
+     * Decode and return an Erlang reference.
+     * 
+     * @param stream
+     * @return The reference
+     * @throws IOException
+     */
     public static Reference decodeReferenceExt(StreamInterface stream)
             throws IOException {
         Atom atom = (Atom) decode(stream, false);
@@ -52,6 +97,13 @@ public class Decoder {
         return new Reference(atom, identifier, creation);
     }
 
+    /**
+     * Decode and return an Erlang port.
+     * 
+     * @param stream
+     * @return The port
+     * @throws IOException
+     */
     public static Port decodePortExt(StreamInterface stream) throws IOException {
         Atom atom = (Atom) decode(stream, false);
         Integer identifier = Utils.unpackNumber(stream.read(4)).intValue();
@@ -59,6 +111,13 @@ public class Decoder {
         return new Port(atom, identifier, creation);
     }
 
+    /**
+     * Decode and return an Erlang pid.
+     * 
+     * @param stream
+     * @return The pid
+     * @throws IOException
+     */
     public static Pid decodePidExt(StreamInterface stream) throws IOException {
         Atom atom = (Atom) decode(stream, false);
         Integer identifier = Utils.unpackNumber(stream.read(4)).intValue();
@@ -67,6 +126,13 @@ public class Decoder {
         return new Pid(atom, identifier, serial, creation);
     }
 
+    /**
+     * Decode and return a small Erlang tuple (fewer than 256 elements).
+     * 
+     * @param stream
+     * @return The tuple
+     * @throws IOException
+     */
     public static Tuple decodeSmallTupleExt(StreamInterface stream)
             throws IOException {
         Short tupleLen = Utils.unpackNumber(stream.read(1)).shortValue();
@@ -79,6 +145,13 @@ public class Decoder {
         return tuple;
     }
 
+    /**
+     * Decode and return a large Erlang tuple (more than 256 elements).
+     * 
+     * @param stream
+     * @return The tuple
+     * @throws IOException
+     */
     public static Tuple decodeLargeTupleExt(StreamInterface stream)
             throws IOException {
         Integer tupleLen = Utils.unpackNumber(stream.read(4)).intValue();
@@ -91,16 +164,41 @@ public class Decoder {
         return tuple;
     }
 
+    /**
+     * Decode an return a nil/null/None.
+     * 
+     * @param stream
+     * @return An instance of Nil
+     */
     public static Nil decodeNilExt(StreamInterface stream) {
         return new Nil();
     }
 
+    /**
+     * Decode and return a string.
+     * 
+     * @param stream
+     * @return The string
+     * @throws IOException
+     */
     public static String decodeStringExt(StreamInterface stream)
             throws IOException {
         Integer strLen = Utils.unpackNumber(stream.read(2)).intValue();
         return new String(stream.read(strLen));
     }
 
+    /**
+     * Decode and return a list.
+     * 
+     * Depending on the list contents, a string may be returned. This will be
+     * the case if the list contains only byte values, which means that the list
+     * is actually intending to be a string, but being capped by Erlang's 65K
+     * char limit for strings (before they overflow into a list).
+     * 
+     * @param stream
+     * @return The list
+     * @throws IOException
+     */
     public static Object decodeListExt(StreamInterface stream)
             throws IOException {
         Integer listLen = Utils.unpackNumber(stream.read(4)).intValue();
@@ -128,12 +226,26 @@ public class Decoder {
         }
     }
 
+    /**
+     * Decode and return an Erlang binary.
+     * 
+     * @param stream
+     * @return The binary
+     * @throws IOException
+     */
     public static Binary decodeBinaryExt(StreamInterface stream)
             throws IOException {
         Integer binLen = Utils.unpackNumber(stream.read(4)).intValue();
         return new Binary(stream.read(binLen));
     }
 
+    /**
+     * Decode and return "small" big number.
+     * 
+     * @param stream
+     * @return The big integer
+     * @throws IOException
+     */
     public static BigInteger decodeSmallBigExt(StreamInterface stream)
             throws IOException {
         Short numBytes = Utils.unpackNumber(stream.read(1)).shortValue();
@@ -146,6 +258,13 @@ public class Decoder {
         return value;
     }
 
+    /**
+     * Decode and return "large" big number.
+     * 
+     * @param stream
+     * @return The big integer
+     * @throws IOException
+     */
     public static BigInteger decodeLargeBigExt(StreamInterface stream)
             throws IOException {
         Long numBytes = Utils.unpackNumber(stream.read(4));
@@ -158,6 +277,13 @@ public class Decoder {
         return value;
     }
 
+    /**
+     * Decode and return an Erlang "new function".
+     * 
+     * @param stream
+     * @return The "new function"
+     * @throws IOException
+     */
     public static NewFunction decodeNewFunExt(StreamInterface stream)
             throws IOException {
         @SuppressWarnings("unused")
@@ -183,6 +309,13 @@ public class Decoder {
                 pid, freeVars);
     }
 
+    /**
+     * Decode and return a small Erlang atom.
+     * 
+     * @param stream
+     * @return The atom
+     * @throws IOException
+     */
     public static Atom decodeSmallAtomExt(StreamInterface stream)
             throws IOException {
         Integer atomLen = Utils.unpackNumber(stream.read(1)).intValue();
@@ -190,6 +323,13 @@ public class Decoder {
         return new Atom(atomName);
     }
 
+    /**
+     * Decode and return an Erlang function.
+     * 
+     * @param stream
+     * @return The function
+     * @throws IOException
+     */
     public static ErlFunction decodeFunExt(StreamInterface stream)
             throws IOException {
         Long numFree = Utils.unpackNumber(stream.read(4));
@@ -208,6 +348,13 @@ public class Decoder {
         return new ErlFunction(pid, module, index, uniq, freeVars);
     }
 
+    /**
+     * Decode and return an Erlang export.
+     * 
+     * @param stream
+     * @return The export
+     * @throws IOException
+     */
     public static Export decodeExportExt(StreamInterface stream)
             throws IOException {
         Object module = decode(stream, false);
@@ -217,6 +364,13 @@ public class Decoder {
         return new Export(module, function, arity);
     }
 
+    /**
+     * Decode and return an Erlang "new reference".
+     * 
+     * @param stream
+     * @return The "new reference"
+     * @throws IOException
+     */
     public static NewReference decodeNewReferenceExt(StreamInterface stream)
             throws IOException {
         Integer length = Utils.unpackNumber(stream.read(2)).intValue();
@@ -233,6 +387,13 @@ public class Decoder {
         return new NewReference(atom, creation, identifiers);
     }
 
+    /**
+     * Decode and return an Erlang bit binary.
+     * 
+     * @param stream
+     * @return The bit binary
+     * @throws IOException
+     */
     public static BitBinary decodeBitBinaryExt(StreamInterface stream)
             throws IOException {
         Integer length = Utils.unpackNumber(stream.read(4)).intValue();
@@ -240,17 +401,45 @@ public class Decoder {
                 stream.read(length));
     }
 
+    /**
+     * Decode and return an IEEE 8-byte floating-point number.
+     * 
+     * @param stream
+     * @return The double value
+     * @throws IOException
+     */
     public static Double decodeNewFloatExt(StreamInterface stream)
             throws IOException {
         Long value = Utils.unpackNumber(stream.read(8));
         return Double.longBitsToDouble(value);
     }
 
+    /**
+     * Decode and return an IEEE 8-byte floating-point number.
+     * 
+     * @param stream
+     * @return The decoded value
+     * @throws UnsupportedOperationException
+     * @throws IOException
+     */
     public static Object decode(StreamInterface stream)
             throws UnsupportedOperationException, IOException {
         return decode(stream, true);
     }
 
+    /**
+     * Decode and return an IEEE 8-byte floating-point number.
+     * 
+     * If checkDistTag, check to see that the first byte is 131 (this is how
+     * Erlang flags the beginning of every data type). This check does not need
+     * to be performed when recursively decoding nested data types.
+     * 
+     * @param stream
+     * @param checkDistTag
+     * @return The decoded value
+     * @throws UnsupportedOperationException
+     * @throws IOException
+     */
     public static Object decode(StreamInterface stream, Boolean checkDistTag)
             throws UnsupportedOperationException, IOException {
         byte firstByte = stream.read(1)[0];
