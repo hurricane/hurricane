@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-public class BitBinary extends Base {
+public class BitBinary {
     public Byte mBits;
     public String mData;
 

@@ -2,7 +2,7 @@ package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
 
-public class NewReference extends Base {
+public class NewReference {
     public Object mAtom;
     public Byte mCreation;
     public ArrayList<Integer> mIds;

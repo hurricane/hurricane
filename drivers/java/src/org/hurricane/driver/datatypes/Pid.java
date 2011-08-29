@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-public class Pid extends Base {
+public class Pid {
     public Atom mAtom;
     public Integer mIdentifier;
     public Integer mSerial;

@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-public class Port extends Base {
+public class Port {
     public Atom mAtom;
     public Integer mIdentifier;
     public Byte mCreation;

@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-public class Nil extends Base {
+public class Nil {
     public String toString() {
         return "Nil";
     }

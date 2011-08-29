@@ -3,7 +3,7 @@ package org.hurricane.driver.datatypes;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tuple extends Base {
+public class Tuple {
     public ArrayList<Object> mElements;
 
     public Tuple() {

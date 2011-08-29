@@ -2,7 +2,7 @@ package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
 
-public class NewFunction extends Base {
+public class NewFunction {
     public Byte mArity;
     public String mUniq;
     public Integer mIndex;

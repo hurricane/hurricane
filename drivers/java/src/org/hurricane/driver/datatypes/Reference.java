@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-public class Reference extends Base {
+public class Reference {
     public Atom mAtom;
     public Integer mIdentifier;
     public Byte mCreation;

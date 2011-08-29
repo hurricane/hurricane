@@ -1,6 +1,9 @@
 package org.hurricane.driver.datatypes;
 
-public class Atom extends Base {
+/**
+ * 
+ */
+public class Atom {
     public String mName;
 
     public Atom(String name) {

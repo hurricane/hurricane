@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-public class AtomCacheRef extends Base {
+public class AtomCacheRef {
     public Byte mValue;
 
     public AtomCacheRef(byte value) {

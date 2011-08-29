@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-public class Export extends Base {
+public class Export {
     public Object mModule;
     public Object mFunction;
     public Byte mArity;

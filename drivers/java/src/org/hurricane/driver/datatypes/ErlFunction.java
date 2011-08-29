@@ -2,7 +2,7 @@ package org.hurricane.driver.datatypes;
 
 import java.util.ArrayList;
 
-public class ErlFunction extends Base {
+public class ErlFunction {
     public Pid mPid;
     public Object mModule;
     public Object mIndex;
