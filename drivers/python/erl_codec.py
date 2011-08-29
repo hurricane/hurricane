@@ -905,7 +905,7 @@ class Gateway:
             self.stream.close()
 
     def recv(self):
-        """Receives one message from Hurricane."""
+        """Receive one message from Hurricane."""
         message_len = self.stream.read(4)
 
         if len(message_len) < 4:
@@ -919,7 +919,7 @@ class Gateway:
         return message
 
     def send(self, message):
-        """Sends one message to Hurricane."""
+        """Send one message to Hurricane."""
         self.stream_wrapper.clear()
         encode(message, self.stream_wrapper)
         self.stream.write(
