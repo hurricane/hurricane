@@ -8,7 +8,44 @@
 require 'socket'
 require 'stringio'
 
+# Defines the module where all Erlang-related logic will go.
 module Erlang
+end
+
+# Patches older versions of Ruby to work the same way as 1.8.7+
+# regarding String's bytesize() method.
+if not ''.respond_to?('bytesize')
+  class String
+    def bytesize()
+      count = 0
+      each_byte() { |b| count += 1 }
+      count
+    end
+  end
+end
+
+# Patches older versions of Ruby to work the same way as 1.8.7+
+# regarding String's bytes() method.
+if not ''.respond_to?('bytes')
+  class String
+    def bytes()
+      bytes = []
+      each_byte() { |b| bytes << b }
+      bytes
+    end
+  end
+end
+
+# Patches older versions of Ruby to work the same way as 1.8.7+
+# regarding StringIO's bytes() method.
+if not StringIO.new().respond_to?('bytes')
+  class StringIO
+    def bytes()
+      bytes = []
+      each_byte() { |b| bytes << b }
+      bytes
+    end
+  end
 end
 
 if "\x00\x00\x00\x01".unpack('L').eql?(1)
