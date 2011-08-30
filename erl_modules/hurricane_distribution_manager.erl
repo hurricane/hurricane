@@ -39,7 +39,7 @@ start(Options) ->
     pg2:start_link(),
 
     NodeName = proplists:get_value(node_name, Options),
-    net_kernel:start([NodeName]),
+    net_kernel:start([NodeName, longnames]),
 
     hurricane_log_server:log(
         info,
