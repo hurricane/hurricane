@@ -1,5 +1,5 @@
 #!/usr/bin/env escript
-%%! -smp enable -sname hurricane
+%%! -smp enable
 
 %% Main entry point into Hurricane. Given a single argument, which is
 %% the path to a config file, loads the config, compiles all modules as

@@ -8,7 +8,44 @@
 require 'socket'
 require 'stringio'
 
+# Defines the module where all Erlang-related logic will go.
 module Erlang
+end
+
+# Patches older versions of Ruby to work the same way as 1.8.7+
+# regarding String's bytesize() method.
+if not ''.respond_to?('bytesize')
+  class String
+    def bytesize()
+      count = 0
+      each_byte() { |b| count += 1 }
+      count
+    end
+  end
+end
+
+# Patches older versions of Ruby to work the same way as 1.8.7+
+# regarding String's bytes() method.
+if not ''.respond_to?('bytes')
+  class String
+    def bytes()
+      bytes = []
+      each_byte() { |b| bytes << b }
+      bytes
+    end
+  end
+end
+
+# Patches older versions of Ruby to work the same way as 1.8.7+
+# regarding StringIO's bytes() method.
+if not StringIO.new().respond_to?('bytes')
+  class StringIO
+    def bytes()
+      bytes = []
+      each_byte() { |b| bytes << b }
+      bytes
+    end
+  end
 end
 
 if "\x00\x00\x00\x01".unpack('L').eql?(1)
@@ -143,6 +180,11 @@ class Erlang::Tuple
   # Uses eql?() to compare self to another object for equality.
   def ==(other)
     eql?(other)
+  end
+
+  # Compare to another tuple (used mostly for sorting).
+  def <=>(other)
+    @data <=> other.data
   end
 end
 
@@ -479,7 +521,7 @@ end
 def Erlang::decode_reference_ext(stream)
   atom = Erlang::decode(stream, false)
   identifier = stream.read(4).unpack('N')[0]
-  creation = stream.read(1)[0]
+  creation = stream.read(1).unpack('C')[0]
   Erlang::Reference.new(atom, identifier, creation)
 end
 
@@ -487,7 +529,7 @@ end
 def Erlang::decode_port_ext(stream)
   atom = Erlang::decode(stream, false)
   identifier = stream.read(4).unpack('N')[0]
-  creation = stream.read(1)[0]
+  creation = stream.read(1).unpack('C')[0]
   Erlang::Port.new(atom, identifier, creation)
 end
 
@@ -496,13 +538,13 @@ def Erlang::decode_pid_ext(stream)
   atom = Erlang::decode(stream, false)
   identifier = stream.read(4).unpack('N')[0]
   serial = stream.read(4).unpack('N')[0]
-  creation = stream.read(1)[0]
+  creation = stream.read(1).unpack('C')[0]
   Erlang::Pid.new(atom, identifier, serial, creation)
 end
 
 # Decode and return a small Erlang tuple (fewer than 256 elements).
 def Erlang::decode_small_tuple_ext(stream)
-  tuple_len = stream.read(1)[0]
+  tuple_len = stream.read(1).unpack('C')[0]
   elements = []
   1.upto(tuple_len) do
     value = decode(stream, false)
@@ -569,11 +611,11 @@ end
 
 # Decode and return "small" big number.
 def Erlang::decode_small_big_ext(stream)
-  num_bytes = stream.read(1)[0]
-  sign = stream.read(1)[0]
+  num_bytes = stream.read(1).unpack('C')[0]
+  sign = stream.read(1).unpack('C')[0]
   num = 0
   0.upto(num_bytes - 1) do |i|
-    num += stream.read(1)[0] * 256 ** i
+    num += stream.read(1).unpack('C')[0] * 256 ** i
   end
   if sign.eql?(1)
     num *= -1
@@ -584,10 +626,10 @@ end
 # Decode and return "large" big number.
 def Erlang::decode_large_big_ext(stream)
   num_bytes = stream.read(4).unpack('N')[0]
-  sign = stream.read(1)[0]
+  sign = stream.read(1).unpack('C')[0]
   num = 0
   0.upto(num_bytes - 1) do |i|
-    num += stream.read(1)[0] * 256 ** i
+    num += stream.read(1).unpack('C')[0] * 256 ** i
   end
   if sign.eql?(1)
     num *= -1
@@ -599,7 +641,7 @@ end
 def Erlang::decode_new_reference_ext(stream)
   length = stream.read(2).unpack('n')[0]
   atom = decode(stream, false)
-  creation = stream.read(1)[0]
+  creation = stream.read(1).unpack('C')[0]
   identifiers = []
   1.upto(length) do
     identifier = stream.read(4).unpack('N')[0]
@@ -610,7 +652,7 @@ end
 
 # Decode and return a small Erlang atom.
 def Erlang::decode_small_atom_ext(stream)
-  atom_len = stream.read(1)[0]
+  atom_len = stream.read(1).unpack('C')[0]
   atom_name = stream.read(atom_len)
   Erlang::Atom.new(atom_name)
 end
@@ -635,7 +677,7 @@ end
 # Decode and return an Erlang "new function".
 def Erlang::decode_new_fun_ext(stream)
   size = stream.read(4).unpack('N')[0]
-  arity = stream.read(1)[0]
+  arity = stream.read(1).unpack('C')[0]
   uniq = stream.read(16)
   index = stream.read(4).unpack('N')[0]
   num_free = stream.read(4).unpack('N')[0]
@@ -669,17 +711,17 @@ end
 # Decode and return an Erlang bit binary.
 def Erlang::decode_bit_binary_ext(stream)
   length = stream.read(4).unpack('N')[0]
-  Erlang::BitBinary.new(stream.read(1)[0], stream.read(length))
+  Erlang::BitBinary.new(stream.read(1).unpack('C')[0], stream.read(length))
 end
 
 # Decode and return an Erlang atom cache ref.
 def Erlang::decode_atom_cache_ref(stream)
-    Erlang::AtomCacheRef.new(stream.read(1)[0])
+    Erlang::AtomCacheRef.new(stream.read(1).unpack('C')[0])
 end
 
 # Decode and return a small integer (byte).
 def Erlang::decode_small_integer_ext(stream)
-  stream.read(1)[0]
+  stream.read(1).unpack('C')[0]
 end
 
 # Decode and return an integer.
@@ -703,12 +745,12 @@ end
 # not need to be performed when recursively decoding nested data types,
 # hence the optional argument.
 def Erlang::decode(stream, check_dist_tag=true)
-  first_byte = stream.read(1)[0]
+  first_byte = stream.read(1).unpack('C')[0]
   if check_dist_tag
     if not first_byte.eql?(131)
-      raise ArgumentError('This is not an Erlang EXT datatype')
+      raise ArgumentError.new('This is not an Erlang EXT datatype')
     else
-      ext_code = stream.read(1)[0]
+      ext_code = stream.read(1).unpack('C')[0]
     end
   else
     ext_code = first_byte
@@ -947,7 +989,7 @@ def Erlang::encode_function(data, stream)
   encode(data.module, stream, false)
   encode(data.index, stream, false)
   encode(data.uniq, stream, false)
-  if free_vars_len > 0:
+  if free_vars_len > 0
     data.free_vars.each() do |free_var|
       stream.write([free_var].pack('N'))
     end
@@ -967,7 +1009,7 @@ def Erlang::encode_new_function(data, stream)
   encode(data.old_index, bytes, false)
   encode(data.old_uniq, bytes, false)
   encode(data.pid, bytes, false)
-  if free_vars_len > 0:
+  if free_vars_len > 0
     data.free_vars.each() do |free_var|
       stream.write([free_var].pack('N'))
     end
@@ -1001,6 +1043,10 @@ def Erlang::encode_hash(data, stream)
   data.each_pair() do |key, value|
     proplist << Erlang::Tuple.new([key, value])
   end
+
+  # sorting is done to get consistency between Ruby 1.8.x and Ruby 1.9.x
+  proplist = proplist.sort()
+
   Erlang::encode(proplist, stream, false)
 end
 
