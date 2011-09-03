@@ -1135,33 +1135,34 @@ function decode(StreamInterface $stream, $check_dist_tag=true) {
         $ext_code = $first_byte;
     }
 
-    if     ($ext_code == 70)  { return decode_new_float_ext($stream); }
-    elseif ($ext_code == 77)  { return decode_bit_binary_ext($stream); }
-    elseif ($ext_code == 82)  { return decode_atom_cache_ref($stream); }
-    elseif ($ext_code == 97)  { return decode_small_integer_ext($stream); }
-    elseif ($ext_code == 98)  { return decode_integer_ext($stream); }
-    elseif ($ext_code == 99)  { return decode_float_ext($stream); }
-    elseif ($ext_code == 100) { return decode_atom_ext($stream); }
-    elseif ($ext_code == 101) { return decode_reference_ext($stream); }
-    elseif ($ext_code == 102) { return decode_port_ext($stream); }
-    elseif ($ext_code == 103) { return decode_pid_ext($stream); }
-    elseif ($ext_code == 104) { return decode_small_tuple_ext($stream); }
-    elseif ($ext_code == 105) { return decode_large_tuple_ext($stream); }
-    elseif ($ext_code == 106) { return decode_nil_ext($stream); }
-    elseif ($ext_code == 107) { return decode_string_ext($stream); }
-    elseif ($ext_code == 108) { return decode_list_ext($stream); }
-    elseif ($ext_code == 109) { return decode_binary_ext($stream); }
-    elseif ($ext_code == 110) { return decode_small_big_ext($stream); }
-    elseif ($ext_code == 111) { return decode_large_big_ext($stream); }
-    elseif ($ext_code == 112) { return decode_new_fun_ext($stream); }
-    elseif ($ext_code == 113) { return decode_export_ext($stream); }
-    elseif ($ext_code == 114) { return decode_new_reference_ext($stream); }
-    elseif ($ext_code == 115) { return decode_small_atom_ext($stream); }
-    elseif ($ext_code == 117) { return decode_fun_ext($stream); }
-    else {
-        throw new Exception(
-            'Unable to decode Erlang EXT data type: ' . $ext_code
-        );
+    switch ($ext_code) {
+        case 70: return decode_new_float_ext($stream);
+        case 77: return decode_bit_binary_ext($stream);
+        case 82: return decode_atom_cache_ref($stream);
+        case 97: return decode_small_integer_ext($stream);
+        case 98: return decode_integer_ext($stream);
+        case 99: return decode_float_ext($stream);
+        case 100: return decode_atom_ext($stream);
+        case 101: return decode_reference_ext($stream);
+        case 102: return decode_port_ext($stream);
+        case 103: return decode_pid_ext($stream);
+        case 104: return decode_small_tuple_ext($stream);
+        case 105: return decode_large_tuple_ext($stream);
+        case 106: return decode_nil_ext($stream);
+        case 107: return decode_string_ext($stream);
+        case 108: return decode_list_ext($stream);
+        case 109: return decode_binary_ext($stream);
+        case 110: return decode_small_big_ext($stream);
+        case 111: return decode_large_big_ext($stream);
+        case 112: return decode_new_fun_ext($stream);
+        case 113: return decode_export_ext($stream);
+        case 114: return decode_new_reference_ext($stream);
+        case 115: return decode_small_atom_ext($stream);
+        case 117: return decode_fun_ext($stream);
+        default:
+            throw new Exception(
+                'Unable to decode Erlang EXT data type: ' . $ext_code
+            );
     }
 }
 
