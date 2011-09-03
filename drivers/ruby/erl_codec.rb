@@ -547,7 +547,7 @@ def Erlang::decode_small_tuple_ext(stream)
   tuple_len = stream.read(1).unpack('C')[0]
   elements = []
   1.upto(tuple_len) do
-    value = decode(stream, false)
+    value = Erlang::decode(stream, false)
     elements << value
   end
   Erlang::Tuple.new(elements)
@@ -558,7 +558,7 @@ def Erlang::decode_large_tuple_ext(stream)
   tuple_len = stream.read(4).unpack('N')[0]
   elements = []
   1.upto(tuple_len) do
-    value = decode(stream, false)
+    value = Erlang::decode(stream, false)
     elements << value
   end
   Erlang::Tuple.new(elements)
@@ -586,11 +586,11 @@ def Erlang::decode_list_ext(stream)
   elements = []
   is_str = true
   1.upto(list_len) do
-    value = decode(stream, false)
+    value = Erlang::decode(stream, false)
     is_str = is_str && value.class().eql?(Fixnum) && value < 256
     elements << value
   end
-  tail = decode(stream, false)
+  tail = Erlang::decode(stream, false)
   if not tail.eql?(nil)
     is_str = is_str && tail.class().eql?(Fixnum) && tail < 256
     elements << tail
@@ -640,7 +640,7 @@ end
 # Decode and return an Erlang "new reference".
 def Erlang::decode_new_reference_ext(stream)
   length = stream.read(2).unpack('n')[0]
-  atom = decode(stream, false)
+  atom = Erlang::decode(stream, false)
   creation = stream.read(1).unpack('C')[0]
   identifiers = []
   1.upto(length) do
@@ -660,14 +660,14 @@ end
 # Decode and return an Erlang function.
 def Erlang::decode_fun_ext(stream)
   num_free = stream.read(4).unpack('N')[0]
-  pid = decode(stream, false)
-  mod = decode(stream, false)
-  index = decode(stream, false)
-  uniq = decode(stream, false)
+  pid = Erlang::decode(stream, false)
+  mod = Erlang::decode(stream, false)
+  index = Erlang::decode(stream, false)
+  uniq = Erlang::decode(stream, false)
 
   free_vars = []
   1.upto(num_free) do
-    free_var = decode(stream, false)
+    free_var = Erlang::decode(stream, false)
     free_vars << free_var
   end
 
@@ -681,14 +681,14 @@ def Erlang::decode_new_fun_ext(stream)
   uniq = stream.read(16)
   index = stream.read(4).unpack('N')[0]
   num_free = stream.read(4).unpack('N')[0]
-  mod = decode(stream, false)
-  old_index = decode(stream, false)
-  old_uniq = decode(stream, false)
-  pid = decode(stream, false)
+  mod = Erlang::decode(stream, false)
+  old_index = Erlang::decode(stream, false)
+  old_uniq = Erlang::decode(stream, false)
+  pid = Erlang::decode(stream, false)
 
   free_vars = []
   1.upto(num_free) do
-    free_var = decode(stream, false)
+    free_var = Erlang::decode(stream, false)
     free_vars << free_var
   end
 
@@ -697,9 +697,9 @@ end
 
 # Decode and return an Erlang export.
 def Erlang::decode_export_ext(stream)
-  mod = decode(stream, false)
-  function = decode(stream, false)
-  arity = decode(stream, false)
+  mod = Erlang::decode(stream, false)
+  function = Erlang::decode(stream, false)
+  arity = Erlang::decode(stream, false)
   Erlang::Export.new(mod, function, arity)
 end
 
@@ -896,7 +896,7 @@ end
 # Encode an Erlang reference into the stream.
 def Erlang::encode_reference(data, stream)
   stream.write(101.chr())
-  encode(data.atom, stream, false)
+  Erlang::encode(data.atom, stream, false)
   stream.write([data.identifier].pack('N'))
   stream.write(data.creation.chr())
 end
@@ -904,7 +904,7 @@ end
 # Encode an Erlang port into the stream.
 def Erlang::encode_port(data, stream)
   stream.write(102.chr())
-  encode(data.atom, stream, false)
+  Erlang::encode(data.atom, stream, false)
   stream.write([data.identifier].pack('N'))
   stream.write(data.creation.chr())
 end
@@ -912,7 +912,7 @@ end
 # Encode an Erlang pid into the stream.
 def Erlang::encode_pid(data, stream)
   stream.write(103.chr())
-  encode(data.atom, stream, false)
+  Erlang::encode(data.atom, stream, false)
   stream.write([data.identifier].pack('N'))
   stream.write([data.serial].pack('N'))
   stream.write(data.creation.chr())
@@ -929,7 +929,7 @@ def Erlang::encode_tuple(data, stream)
     stream.write([data_len].pack('N'))
   end
   0.upto(data_len - 1) do |i|
-    encode(data.data[i], stream, false)
+    Erlang::encode(data.data[i], stream, false)
   end
 end
 
@@ -956,7 +956,7 @@ def Erlang::encode_list(data, stream)
   stream.write(108.chr())
   stream.write([data_len].pack('N'))
   0.upto(data_len - 1) do |i|
-    encode(data[i], stream, false)
+    Erlang::encode(data[i], stream, false)
   end
   stream.write(106.chr())
 end
@@ -973,7 +973,7 @@ def Erlang::encode_new_reference(data, stream)
   stream.write(114.chr())
   ids_len = data.ids.size()
   stream.write([ids_len].pack('n'))
-  encode(data.atom, stream, false)
+  Erlang::encode(data.atom, stream, false)
   stream.write(data.creation.chr())
   data.ids.each() do |identifier|
     stream.write([identifier].pack('N'))
@@ -985,10 +985,10 @@ def Erlang::encode_function(data, stream)
   stream.write(117.chr())
   free_vars_len = data.free_vars.size()
   stream.write([free_vars_len].pack('N'))
-  encode(data.pid, stream, false)
-  encode(data.module, stream, false)
-  encode(data.index, stream, false)
-  encode(data.uniq, stream, false)
+  Erlang::encode(data.pid, stream, false)
+  Erlang::encode(data.module, stream, false)
+  Erlang::encode(data.index, stream, false)
+  Erlang::encode(data.uniq, stream, false)
   if free_vars_len > 0
     data.free_vars.each() do |free_var|
       stream.write([free_var].pack('N'))
@@ -1005,10 +1005,10 @@ def Erlang::encode_new_function(data, stream)
   bytes.write(data.uniq)
   bytes.write([data.index].pack('N'))
   bytes.write([free_vars_len].pack('N'))
-  encode(data.module, bytes, false)
-  encode(data.old_index, bytes, false)
-  encode(data.old_uniq, bytes, false)
-  encode(data.pid, bytes, false)
+  Erlang::encode(data.module, bytes, false)
+  Erlang::encode(data.old_index, bytes, false)
+  Erlang::encode(data.old_uniq, bytes, false)
+  Erlang::encode(data.pid, bytes, false)
   if free_vars_len > 0
     data.free_vars.each() do |free_var|
       stream.write([free_var].pack('N'))
@@ -1032,9 +1032,9 @@ end
 # Encode an Erlang export into the stream.
 def Erlang::encode_export(data, stream)
   stream.write(113.chr())
-  encode(data.module, stream, false)
-  encode(data.function, stream, false)
-  encode(data.arity, stream, false)
+  Erlang::encode(data.module, stream, false)
+  Erlang::encode(data.function, stream, false)
+  Erlang::encode(data.arity, stream, false)
 end
 
 # Encode a hash into the stream (as a property list).
