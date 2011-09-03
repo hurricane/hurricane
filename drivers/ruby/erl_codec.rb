@@ -605,8 +605,8 @@ end
 
 # Decode and return an Erlang binary.
 def Erlang::decode_binary_ext(stream)
-    bin_len = stream.read(4).unpack('N')[0]
-    Erlang::Binary.new(stream.read(bin_len))
+  bin_len = stream.read(4).unpack('N')[0]
+  Erlang::Binary.new(stream.read(bin_len))
 end
 
 # Decode and return "small" big number.
@@ -716,7 +716,7 @@ end
 
 # Decode and return an Erlang atom cache ref.
 def Erlang::decode_atom_cache_ref(stream)
-    Erlang::AtomCacheRef.new(stream.read(1).unpack('C')[0])
+  Erlang::AtomCacheRef.new(stream.read(1).unpack('C')[0])
 end
 
 # Decode and return a small integer (byte).
@@ -735,7 +735,7 @@ end
 
 # Decode and return a float (represented by Erlang as a string).
 def Erlang::decode_float_ext(stream)
-    stream.read(31).bytes().map() { |c| c.chr() }.join('').to_f()
+  stream.read(31).bytes().map() { |c| c.chr() }.join('').to_f()
 end
 
 # Decode a single value from the given stream and return it.
