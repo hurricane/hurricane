@@ -28,8 +28,18 @@ send(Source, MessageType, Destination, MessageTag, Message, Timeout) ->
         "~p <- ~p<~p> <- ~p ~p",
         [SendTo, MessageType, MessageTag, Source, Message]
     ),
-    SendTo ! {MessageType, erlang:self(), MessageTag, Message},
-    recv(Source, MessageType, MessageTag, Timeout).
+    case SendTo of
+        {error, Reason} ->
+            hurricane_log_server:log(
+                error,
+                "Cannot send message to requested destination (~p): ~p",
+                [Destination, Reason]
+            ),
+            Source ! {response, erlang:self(), MessageTag, error};
+        _ ->
+            SendTo ! {MessageType, erlang:self(), MessageTag, Message},
+            recv(Source, MessageType, MessageTag, Timeout)
+    end.
 
 %% If the message is a request, then the delegate will wait for a
 %% response up until Timeout. Once that time is reached, a timeout
