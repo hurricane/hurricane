@@ -22,6 +22,7 @@ http_handler(Request) ->
         {params, Request:parse_qs()},
         {body, Request:recv_body(Request:get(body_length))}
     ],
+    io:format(""),
     HandlerPid ! {request, erlang:self(), http_request, SendData},
     receive
         {response, _FromPid, http_request, Data} -> Request:respond(Data)
@@ -44,6 +45,10 @@ start(Options) ->
     application:start(mochiweb),
     ListenPort = proplists:get_value(listen_port, Options, 80),
     mochiweb_http:start(
-        [{name, ?MODULE}, {loop, fun http_handler/1}, {port, ListenPort}]
+        [
+            {name, proplists:get_value(name, Options, default)},
+            {loop, fun http_handler/1},
+            {port, ListenPort}
+        ]
     ),
     loop().
