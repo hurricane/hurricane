@@ -64,6 +64,6 @@ loop() ->
 start(_Args) ->
     erlang:process_flag(trap_exit, true),
     erlang:register(?MODULE, erlang:self()),
-    StartModules = hurricane_config_server:get_config(start_modules),
+    StartModules = hurricane_config_server:get_config(start_modules, []),
     start_modules(StartModules),
     loop().
