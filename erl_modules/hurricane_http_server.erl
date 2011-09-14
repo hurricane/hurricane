@@ -22,7 +22,6 @@ http_handler(Request) ->
         {params, Request:parse_qs()},
         {body, Request:recv_body(Request:get(body_length))}
     ],
-    io:format(""),
     HandlerPid ! {request, erlang:self(), http_request, SendData},
     receive
         {response, _FromPid, http_request, Data} -> Request:respond(Data)
