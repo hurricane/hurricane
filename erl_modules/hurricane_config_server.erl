@@ -45,13 +45,9 @@ get_config(Key) ->
 %% the config server (encapsulates the messaging that has to happen and
 %% how to receive a reply). Allows a default value to be supplied.
 get_config(Key, Default) ->
-    ?MODULE ! {erlang:self(), get_config, Key},
-    receive
-        {config_for, Key, Value} -> ok
-    end,
-    case Value of
+    case get_config(Key) of
         undefined -> Default;
-        _         -> Value
+        Value     -> Value
     end.
 
 %% Registers the process under a convenience name, send a message to
