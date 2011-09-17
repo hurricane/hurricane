@@ -730,6 +730,26 @@ class BitBinary {
 }
 
 /**
+ * Turn an Erlang-style property list into a map.
+ *
+ * @param array $input
+ *
+ * @return array
+ */
+function proplistToArray(array $input) {
+    $result = array();
+    foreach ($input as $element) {
+        if (count($element->data) < 2) {
+            throw new Exception(
+                'Proplist elements should have at least 2 elements'
+            );
+        }
+        $result[$element->data[0]] = $element->data[1];
+    }
+    return $result;
+}
+
+/**
  * Decode and return an Erlang atom cache ref.
  *
  * @param StreamInterface $stream
