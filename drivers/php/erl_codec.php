@@ -1437,7 +1437,7 @@ function encode_dict(array $data, StreamInterface $stream) {
  * @return void
  */
 function encode_array($data, StreamInterface $stream) {
-    if (array_keys($data) == range(0, count($data) - 1)) {
+    if (array_keys($data) === range(0, count($data) - 1)) {
         encode_list($data, $stream);
     } else {
         encode_dict($data, $stream);
