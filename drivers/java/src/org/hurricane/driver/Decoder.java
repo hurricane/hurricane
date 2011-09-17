@@ -140,7 +140,7 @@ public class Decoder {
         Object element;
         for (int i = 0; i < tupleLen; i++) {
             element = decode(stream, false);
-            tuple.mElements.add(element);
+            tuple.elements().add(element);
         }
         return tuple;
     }
@@ -159,7 +159,7 @@ public class Decoder {
         Object element;
         for (int i = 0; i < tupleLen; i++) {
             element = decode(stream, false);
-            tuple.mElements.add(element);
+            tuple.elements().add(element);
         }
         return tuple;
     }

@@ -1,5 +1,12 @@
 package org.hurricane.driver;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.hurricane.driver.datatypes.Tuple;
+
 /**
  * Contains common utilities used throughout this adapter (mostly for working
  * with binary data).
@@ -197,5 +204,26 @@ public class Utils {
                         + " cannot be packed!");
             }
         }
+    }
+
+    /**
+     * Turn an Erlang-style property list into a map.
+     * 
+     * @param proplist
+     *            The property list (usually a list of 2-tuples).
+     * @return The generated map.
+     */
+    public static Map<Object, Object> proplistToMap(List<Tuple> proplist) {
+        Map<Object, Object> result = new HashMap<Object, Object>();
+        Iterator<Tuple> propIter = proplist.iterator();
+        while (propIter.hasNext()) {
+            Tuple element = propIter.next();
+            if (element.elements().size() < 2) {
+                throw new ArrayIndexOutOfBoundsException(
+                        "Each Tuple in a proplist should have at least 2 elements");
+            }
+            result.put(element.elements().get(0), element.elements().get(1));
+        }
+        return result;
     }
 }

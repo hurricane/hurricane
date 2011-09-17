@@ -10,7 +10,7 @@ public class Tuple {
     /**
      * The list of elements contains in this Tuple.
      */
-    public ArrayList<Object> mElements;
+    private ArrayList<Object> mElements;
 
     /**
      * Construct an empty tuple.

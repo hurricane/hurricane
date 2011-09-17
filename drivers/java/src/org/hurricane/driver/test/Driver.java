@@ -479,18 +479,18 @@ public class Driver {
                 31, 0, Byte.valueOf("0"))));
 
         Tuple smallTupleTest = new Tuple();
-        smallTupleTest.mElements.add(Byte.valueOf("42"));
-        smallTupleTest.mElements.add(Byte.valueOf("69"));
+        smallTupleTest.elements().add(Byte.valueOf("42"));
+        smallTupleTest.elements().add(Byte.valueOf("69"));
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 104, 2, 97, 42, 97,
                 69), smallTupleTest));
 
         Tuple largeTupleTest = new Tuple();
-        largeTupleTest.mElements.add(Byte.valueOf("42"));
-        largeTupleTest.mElements.add(Byte.valueOf("69"));
+        largeTupleTest.elements().add(Byte.valueOf("42"));
+        largeTupleTest.elements().add(Byte.valueOf("69"));
         for (int i = 0; i < 279; i++) {
-            largeTupleTest.mElements.add(Byte.valueOf("1"));
+            largeTupleTest.elements().add(Byte.valueOf("1"));
         }
-        largeTupleTest.mElements.add(Byte.valueOf("69"));
+        largeTupleTest.elements().add(Byte.valueOf("69"));
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 105, 0, 0, 1, 26, 97,
                 42, 97, 69, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1,
                 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1,

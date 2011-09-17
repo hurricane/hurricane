@@ -233,7 +233,7 @@ public class Encoder {
      */
     public static void encodeTuple(Tuple data, StreamInterface stream)
             throws IOException {
-        int size = data.mElements.size();
+        int size = data.elements().size();
         if (size < 256) {
             stream.write(Utils.toBytes(104));
             stream.write(Utils.toBytes(size));
@@ -243,7 +243,7 @@ public class Encoder {
         }
 
         for (Integer i = 0; i < size; i++) {
-            encode(data.mElements.get(i), stream, false);
+            encode(data.elements().get(i), stream, false);
         }
     }
 
