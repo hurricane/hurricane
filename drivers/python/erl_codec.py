@@ -401,6 +401,16 @@ class NewFunction(object):
                self.pid == other.pid and \
                self.free_vars == other.free_vars
 
+def proplist_to_dict(proplist):
+    """Turn an Erlang-style proplist into a dict."""
+    result = {}
+    for element in proplist:
+        if len(element) < 2:
+            raise ValueError(
+                'Proplist elements should have at least 2 elements')
+        result[element[0]] = element[1]
+    return result
+
 def decode_atom_ext(stream):
     """Decode and return an Erlang atom."""
     atom_len, = unpack('>h', stream.read(2))
