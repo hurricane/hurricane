@@ -511,6 +511,20 @@ class Erlang::NewFunction
   end
 end
 
+# Turn and Erlang-style property list into a hash.
+def Erlang::proplist_to_hash(proplist)
+  result = {}
+  proplist.each do |element|
+    if element.data().size() < 2
+      raise ArgumentError.new(
+        'Proplist elements should contain at least 2 elements'
+      )
+    end
+    result[element.data()[0]] = element.data()[1]
+  end
+  result
+end
+
 # Decode and return an Erlang atom.
 def Erlang::decode_atom_ext(stream)
   atom_len = stream.read(2).unpack('n')[0]
