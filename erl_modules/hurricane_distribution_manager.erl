@@ -48,7 +48,20 @@ start(Options) ->
     ),
 
     MagicCookie = proplists:get_value(magic_cookie, Options),
-    erlang:set_cookie(erlang:node(), MagicCookie),
+    try erlang:set_cookie(erlang:node(), MagicCookie) of
+         _ -> ok
+    catch ErrorType:Error ->
+        hurricane_log_server:log(
+            error,
+            "Failed to set magic cookie. "
+            "This means that distribution support "
+            "probably failed to start. Check that epmd is running "
+            "and restart Hurricane: "
+            "Error: ~p, ErrorType: ~p",
+            [Error, ErrorType]
+        ),
+        io:format("Erorr")
+    end,
 
     lists:map(
         fun(Node) ->
