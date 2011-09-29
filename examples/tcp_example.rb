@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-#!/usr/bin/env ruby
-
 $:.push(File.join(File.dirname(File.dirname(File.expand_path(__FILE__))), 'drivers', 'ruby'))
 require 'erl_codec'
 
