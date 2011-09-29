@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implements an Erlang function (created at run-time, usually with the fun ()
@@ -10,42 +10,42 @@ public class NewFunction {
     /**
      * The arity of this new function.
      */
-    public Byte mArity;
+    private Byte mArity;
 
     /**
      * The unique BEAM identifier of this new function.
      */
-    public String mUniq;
+    private String mUniq;
 
     /**
      * The BEAM index of this new function.
      */
-    public Integer mIndex;
+    private Integer mIndex;
 
     /**
      * The module where this new function originated.
      */
-    public Object mModule;
+    private Object mModule;
 
     /**
      * The old BEAM index for this new function (for code swapping).
      */
-    public Object mOldIndex;
+    private Object mOldIndex;
 
     /**
      * The old unique BEAM identifier for this new function (for code swapping).
      */
-    public Object mOldUniq;
+    private Object mOldUniq;
 
     /**
      * The pid of the process that created this new function.
      */
-    public Pid mPid;
+    private Pid mPid;
 
     /**
      * The nested structure of this new function.
      */
-    public ArrayList<Object> mFreeVars;
+    private List<Object> mFreeVars;
 
     /**
      * Set the given data on the object.
@@ -60,7 +60,7 @@ public class NewFunction {
      * @param freeVars
      */
     public NewFunction(Byte arity, String uniq, Integer index, Object module,
-            Object oldIndex, Object oldUniq, Pid pid, ArrayList<Object> freeVars) {
+            Object oldIndex, Object oldUniq, Pid pid, List<Object> freeVars) {
         mArity = arity;
         mUniq = uniq;
         mIndex = index;
@@ -90,6 +90,78 @@ public class NewFunction {
             builder.append(hex);
         }
         return builder.toString();
+    }
+
+    /**
+     * Getter for arity.
+     * 
+     * @return the arity.
+     */
+    public Byte getArity() {
+        return mArity;
+    }
+
+    /**
+     * Getter for uniq.
+     * 
+     * @return the uniq.
+     */
+    public String getUniq() {
+        return mUniq;
+    }
+
+    /**
+     * Getter for index.
+     * 
+     * @return the index.
+     */
+    public Integer getIndex() {
+        return mIndex;
+    }
+
+    /**
+     * Getter for module.
+     * 
+     * @return the module.
+     */
+    public Object getModule() {
+        return mModule;
+    }
+
+    /**
+     * Getter for old index.
+     * 
+     * @return the old index.
+     */
+    public Object getOldIndex() {
+        return mOldIndex;
+    }
+
+    /**
+     * Getter for old uniq.
+     * 
+     * @return the old uniq.
+     */
+    public Object getOldUniq() {
+        return mOldUniq;
+    }
+
+    /**
+     * Getter for pid.
+     * 
+     * @return the pid.
+     */
+    public Pid getPid() {
+        return mPid;
+    }
+
+    /**
+     * Getter for free vars.
+     * 
+     * @return the free vars.
+     */
+    public List<Object> getFreeVars() {
+        return mFreeVars;
     }
 
     /**

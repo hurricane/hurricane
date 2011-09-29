@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implements an Erlang "new reference" (a reference created at runtime).
@@ -9,17 +9,17 @@ public class NewReference {
     /**
      * The atomic name of this new reference.
      */
-    public Object mAtom;
+    private Object mAtom;
 
     /**
      * The creation sequence number of this new reference.
      */
-    public Byte mCreation;
+    private Byte mCreation;
 
     /**
      * The identifiers for this new references.
      */
-    public ArrayList<Integer> mIds;
+    private List<Integer> mIds;
 
     /**
      * Set the given data on the object.
@@ -28,10 +28,37 @@ public class NewReference {
      * @param creation
      * @param ids
      */
-    public NewReference(Object atom, Byte creation, ArrayList<Integer> ids) {
+    public NewReference(Object atom, Byte creation, List<Integer> ids) {
         mAtom = atom;
         mCreation = creation;
         mIds = ids;
+    }
+
+    /**
+     * Getter for atom.
+     * 
+     * @return the atom.
+     */
+    public Object getAtom() {
+        return mAtom;
+    }
+
+    /**
+     * Getter for creation.
+     * 
+     * @return the creation.
+     */
+    public Byte getCreation() {
+        return mCreation;
+    }
+
+    /**
+     * Getter for ids.
+     * 
+     * @return the ids.
+     */
+    public List<Integer> getIds() {
+        return mIds;
     }
 
     /**

@@ -7,22 +7,22 @@ public class Pid {
     /**
      * The atomic name of this pid.
      */
-    public Atom mAtom;
-    
+    private Atom mAtom;
+
     /**
      * The BEAM identifier of this pid.
      */
-    public Integer mIdentifier;
-    
+    private Integer mIdentifier;
+
     /**
      * The serial number of this pid.
      */
-    public Integer mSerial;
-    
+    private Integer mSerial;
+
     /**
      * The creation sequence number of this pid.
      */
-    public Byte mCreation;
+    private Byte mCreation;
 
     /**
      * Set the given data on the object.
@@ -37,6 +37,42 @@ public class Pid {
         mIdentifier = identifier;
         mSerial = serial;
         mCreation = creation;
+    }
+
+    /**
+     * Getter for atom.
+     * 
+     * @return the atom.
+     */
+    public Atom getAtom() {
+        return mAtom;
+    }
+
+    /**
+     * Getter for identifier.
+     * 
+     * @return the identifier.
+     */
+    public Integer getIdentifier() {
+        return mIdentifier;
+    }
+
+    /**
+     * Getter for serial.
+     * 
+     * @return the serial.
+     */
+    public Integer getSerial() {
+        return mSerial;
+    }
+
+    /**
+     * Getter for creation.
+     * 
+     * @return the creation.
+     */
+    public Byte getCreation() {
+        return mCreation;
     }
 
     /**

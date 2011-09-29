@@ -7,7 +7,7 @@ public class Atom {
     /**
      * The name of the atom.
      */
-    public String mName;
+    private String mName;
 
     /**
      * Set the given data on the object.
@@ -16,6 +16,15 @@ public class Atom {
      */
     public Atom(String name) {
         mName = name;
+    }
+    
+    /**
+     * Getter for the name.
+     * 
+     * @return the name.
+     */
+    public String getName() {
+        return mName;
     }
 
     /**

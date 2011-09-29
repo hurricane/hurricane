@@ -7,12 +7,12 @@ public class BitBinary {
     /**
      * The number of bits used for the last char.
      */
-    public Byte mBits;
+    private Byte mBits;
 
     /**
      * The raw bytes used by this bit binary.
      */
-    public String mData;
+    private String mData;
 
     /**
      * Set the given data on the object.
@@ -23,6 +23,24 @@ public class BitBinary {
     public BitBinary(byte bits, byte[] data) {
         mBits = (Byte) bits;
         mData = new String(data);
+    }
+
+    /**
+     * Getter for the bits.
+     * 
+     * @return the bits.
+     */
+    public Byte getBits() {
+        return mBits;
+    }
+
+    /**
+     * Getter for the data.
+     * 
+     * @return the data.
+     */
+    public String getData() {
+        return mData;
     }
 
     /**

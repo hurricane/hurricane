@@ -9,7 +9,7 @@ public class Binary {
     /**
      * The raw data stored in this binary.
      */
-    public byte[] mData;
+    private byte[] mData;
 
     /**
      * Set the given data on the object.
@@ -18,6 +18,15 @@ public class Binary {
      */
     public Binary(byte[] data) {
         mData = data;
+    }
+    
+    /**
+     * Getter for the data.
+     * 
+     * @return the data.
+     */
+    public byte[] getData() {
+        return mData;
     }
 
     /**

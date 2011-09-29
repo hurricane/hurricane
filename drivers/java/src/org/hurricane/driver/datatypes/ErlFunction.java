@@ -1,6 +1,6 @@
 package org.hurricane.driver.datatypes;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implements an Erlang function (defined at compile-time).
@@ -9,27 +9,27 @@ public class ErlFunction {
     /**
      * The pid which owns this function.
      */
-    public Pid mPid;
+    private Pid mPid;
 
     /**
      * The module where this function lives.
      */
-    public Object mModule;
+    private Object mModule;
 
     /**
      * The BEAM index of this function.
      */
-    public Object mIndex;
+    private Object mIndex;
 
     /**
      * The unique BEAM identifier for this function.
      */
-    public Object mUniq;
+    private Object mUniq;
 
     /**
      * The nested structure of this new function.
      */
-    public ArrayList<Object> mFreeVars;
+    private List<Object> mFreeVars;
 
     /**
      * Set the given data on the object.
@@ -41,12 +41,57 @@ public class ErlFunction {
      * @param freeVars
      */
     public ErlFunction(Pid pid, Object module, Object index, Object uniq,
-            ArrayList<Object> freeVars) {
+            List<Object> freeVars) {
         mPid = pid;
         mModule = module;
         mIndex = index;
         mUniq = uniq;
         mFreeVars = freeVars;
+    }
+
+    /**
+     * Getter for pid.
+     * 
+     * @return the pid.
+     */
+    public Pid getPid() {
+        return mPid;
+    }
+
+    /**
+     * Getter for module.
+     * 
+     * @return the module.
+     */
+    public Object getModule() {
+        return mModule;
+    }
+
+    /**
+     * Getter for index.
+     * 
+     * @return the index.
+     */
+    public Object getIndex() {
+        return mIndex;
+    }
+
+    /**
+     * Getter for uniq.
+     * 
+     * @return the uniq.
+     */
+    public Object getUniq() {
+        return mUniq;
+    }
+
+    /**
+     * Getter for free vars.
+     * 
+     * @return the free vars.
+     */
+    public List<Object> getFreeVars() {
+        return mFreeVars;
     }
 
     /**

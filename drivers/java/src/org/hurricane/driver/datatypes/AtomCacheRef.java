@@ -7,7 +7,7 @@ public class AtomCacheRef {
     /**
      * The value of the atom cache ref.
      */
-    public Byte mValue;
+    private Byte mValue;
 
     /**
      * Set the given data on the object.
@@ -16,6 +16,15 @@ public class AtomCacheRef {
      */
     public AtomCacheRef(byte value) {
         mValue = value;
+    }
+    
+    /**
+     * Getter for the value.
+     * 
+     * @return the value.
+     */
+    public Byte getValue() {
+        return mValue;
     }
 
     /**

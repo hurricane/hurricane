@@ -7,17 +7,17 @@ public class Port {
     /**
      * The atomic name of this port.
      */
-    public Atom mAtom;
+    private Atom mAtom;
 
     /**
      * The BEAM identifier of this port.
      */
-    public Integer mIdentifier;
+    private Integer mIdentifier;
 
     /**
      * The creation sequence number of this port.
      */
-    public Byte mCreation;
+    private Byte mCreation;
 
     /**
      * Set the given data on the object.
@@ -30,6 +30,33 @@ public class Port {
         mAtom = atom;
         mIdentifier = identifier;
         mCreation = creation;
+    }
+
+    /**
+     * Getter for atom.
+     * 
+     * @return the atom.
+     */
+    public Atom getAtom() {
+        return mAtom;
+    }
+
+    /**
+     * Getter for identifier.
+     * 
+     * @return the identifier.
+     */
+    public Integer getIdentifier() {
+        return mIdentifier;
+    }
+
+    /**
+     * Getter for creation.
+     * 
+     * @return the creation.
+     */
+    public Byte getCreation() {
+        return mCreation;
     }
 
     /**

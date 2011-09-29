@@ -7,17 +7,17 @@ public class Export {
     /**
      * The module that this export references.
      */
-    public Object mModule;
+    private Object mModule;
 
     /**
      * The function that this export references.
      */
-    public Object mFunction;
+    private Object mFunction;
 
     /**
      * The arity of the function that this export references.
      */
-    public Byte mArity;
+    private Byte mArity;
 
     /**
      * Set the given data on the object.
@@ -30,6 +30,33 @@ public class Export {
         mModule = module;
         mFunction = function;
         mArity = arity;
+    }
+    
+    /**
+     * Getter for module.
+     * 
+     * @return the module.
+     */
+    public Object getModule() {
+        return mModule;
+    }
+    
+    /**
+     * Getter for function.
+     * 
+     * @return the function.
+     */
+    public Object getFunction() {
+        return mFunction; 
+    }
+    
+    /**
+     * Getter for arity.
+     * 
+     * @return the arity.
+     */
+    public Byte getArity() {
+        return mArity;
     }
 
     /**

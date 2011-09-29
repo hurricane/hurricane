@@ -50,9 +50,9 @@ public class Encoder {
     public static void encodeBitBinary(BitBinary data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(77));
-        byte[] binary = data.mData.getBytes();
+        byte[] binary = data.getData().getBytes();
         stream.write(Utils.packNumber(binary.length));
-        stream.write(Utils.toBytes(data.mBits));
+        stream.write(Utils.toBytes(data.getBits()));
         stream.write(binary);
     }
 
@@ -66,7 +66,7 @@ public class Encoder {
     public static void encodeAtomCacheRef(AtomCacheRef data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(82));
-        stream.write(Utils.toBytes((int) data.mValue));
+        stream.write(Utils.toBytes((int) data.getValue()));
     }
 
     /**
@@ -166,7 +166,7 @@ public class Encoder {
      */
     public static void encodeAtom(Atom data, StreamInterface stream)
             throws IOException {
-        byte[] bytes = data.mName.getBytes();
+        byte[] bytes = data.getName().getBytes();
         if (bytes.length < 0xf) {
             stream.write(Utils.toBytes(115));
             stream.write(Utils.toBytes(bytes.length));
@@ -188,9 +188,9 @@ public class Encoder {
     public static void encodeReference(Reference data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(101));
-        encode(data.mAtom, stream, false);
-        stream.write(Utils.packNumber(data.mIdentifier));
-        stream.write(Utils.toBytes((int) data.mCreation));
+        encode(data.getAtom(), stream, false);
+        stream.write(Utils.packNumber(data.getIdentifier()));
+        stream.write(Utils.toBytes((int) data.getCreation()));
     }
 
     /**
@@ -203,9 +203,9 @@ public class Encoder {
     public static void encodePort(Port data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(102));
-        encode(data.mAtom, stream, false);
-        stream.write(Utils.packNumber(data.mIdentifier));
-        stream.write(Utils.toBytes((int) data.mCreation));
+        encode(data.getAtom(), stream, false);
+        stream.write(Utils.packNumber(data.getIdentifier()));
+        stream.write(Utils.toBytes((int) data.getCreation()));
     }
 
     /**
@@ -218,10 +218,10 @@ public class Encoder {
     public static void encodePid(Pid data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(103));
-        encode(data.mAtom, stream, false);
-        stream.write(Utils.packNumber(data.mIdentifier));
-        stream.write(Utils.packNumber(data.mSerial));
-        stream.write(Utils.toBytes((int) data.mCreation));
+        encode(data.getAtom(), stream, false);
+        stream.write(Utils.packNumber(data.getIdentifier()));
+        stream.write(Utils.packNumber(data.getSerial()));
+        stream.write(Utils.toBytes((int) data.getCreation()));
     }
 
     /**
@@ -269,8 +269,8 @@ public class Encoder {
     public static void encodeBinary(Binary data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(109));
-        stream.write(Utils.packNumber(data.mData.length));
-        stream.write(data.mData);
+        stream.write(Utils.packNumber(data.getData().length));
+        stream.write(data.getData());
     }
 
     /**
@@ -305,12 +305,12 @@ public class Encoder {
     public static void encodeNewReference(NewReference data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(114));
-        Short idsLen = ((Integer) data.mIds.size()).shortValue();
+        Short idsLen = ((Integer) data.getIds().size()).shortValue();
         stream.write(Utils.packNumber(idsLen));
-        encode(data.mAtom, stream, false);
-        stream.write(Utils.toBytes((int) data.mCreation));
+        encode(data.getAtom(), stream, false);
+        stream.write(Utils.toBytes((int) data.getCreation()));
         for (Short i = 0; i < idsLen; i++) {
-            stream.write(Utils.packNumber(data.mIds.get(i)));
+            stream.write(Utils.packNumber(data.getIds().get(i)));
         }
     }
 
@@ -324,15 +324,15 @@ public class Encoder {
     public static void encodeErlFunction(ErlFunction data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(117));
-        Integer fvLen = data.mFreeVars.size();
+        Integer fvLen = data.getFreeVars().size();
         stream.write(Utils.packNumber(fvLen));
-        encode(data.mPid, stream, false);
-        encode(data.mModule, stream, false);
-        encode(data.mIndex, stream, false);
-        encode(data.mUniq, stream, false);
+        encode(data.getPid(), stream, false);
+        encode(data.getModule(), stream, false);
+        encode(data.getIndex(), stream, false);
+        encode(data.getUniq(), stream, false);
 
         for (Integer i = 0; i < fvLen; i++) {
-            stream.write(Utils.packNumber(data.mFreeVars.get(i)));
+            stream.write(Utils.packNumber(data.getFreeVars().get(i)));
         }
     }
 
@@ -346,20 +346,20 @@ public class Encoder {
     public static void encodeNewFunction(NewFunction data,
             StreamInterface stream) throws IOException {
         stream.write(Utils.toBytes(112));
-        Integer fvLen = data.mFreeVars.size();
+        Integer fvLen = data.getFreeVars().size();
 
         StreamEmulator buffer = new StreamEmulator();
-        buffer.write(Utils.toBytes((int) data.mArity));
-        buffer.write(data.mUniq.getBytes());
-        buffer.write(Utils.packNumber(data.mIndex));
+        buffer.write(Utils.toBytes((int) data.getArity()));
+        buffer.write(data.getUniq().getBytes());
+        buffer.write(Utils.packNumber(data.getIndex()));
         buffer.write(Utils.packNumber(fvLen));
-        encode(data.mModule, buffer, false);
-        encode(data.mOldIndex, buffer, false);
-        encode(data.mOldUniq, buffer, false);
-        encode(data.mPid, buffer, false);
+        encode(data.getModule(), buffer, false);
+        encode(data.getOldIndex(), buffer, false);
+        encode(data.getOldUniq(), buffer, false);
+        encode(data.getPid(), buffer, false);
 
         for (Integer i = 0; i < fvLen; i++) {
-            buffer.write(Utils.packNumber(data.mFreeVars.get(i)));
+            buffer.write(Utils.packNumber(data.getFreeVars().get(i)));
         }
 
         stream.write(Utils.packNumber(buffer.size() + 4));
@@ -376,9 +376,9 @@ public class Encoder {
     public static void encodeExport(Export data, StreamInterface stream)
             throws IOException {
         stream.write(Utils.toBytes(113));
-        encode(data.mModule, stream, false);
-        encode(data.mFunction, stream, false);
-        encode(data.mArity, stream, false);
+        encode(data.getModule(), stream, false);
+        encode(data.getFunction(), stream, false);
+        encode(data.getArity(), stream, false);
     }
 
     /**
