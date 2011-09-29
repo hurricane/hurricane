@@ -28,9 +28,14 @@ get_least_busy_pid(Pids) ->
 %% very intelligent load-balancing.
 get_best_pid(Name) ->
     LocalPids = pg2:get_local_members(Name),
-    case erlang:length(LocalPids) of
-        0 -> pg2:get_closest_pid(Name);
-        1 -> erlang:hd(LocalPids);
-        _ -> get_least_busy_pid(LocalPids)
+    case LocalPids of
+        {error, {no_such_group, Name}} ->
+            erlang:self();
+        _ ->
+            case erlang:length(LocalPids) of
+                0 -> pg2:get_closest_pid(Name);
+                1 -> erlang:hd(LocalPids);
+                _ -> get_least_busy_pid(LocalPids)
+            end
     end.
 
