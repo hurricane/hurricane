@@ -97,8 +97,8 @@ class Erlang::StreamEmulator
 
   # Reset the position and clear the data buffer.
   def clear()
-    data = ''
-    pos = 0
+    @data = ''
+    @pos = 0
   end
 
   # Exist for interface completeness.
