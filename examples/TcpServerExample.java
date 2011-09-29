@@ -15,7 +15,8 @@ public class TcpServerExample {
 
         while (true) {
             Tuple recvMsg = (Tuple) gateway.recv();
-            if (recvMsg.elements().get(0).equals(new Atom("request"))) {
+            Atom type = (Atom) recvMsg.elements().get(0);
+            if (type.getName().equals("request")) {
                 Tuple sendMsg = new Tuple();
                 sendMsg.elements().add(new Atom("response"));
                 sendMsg.elements().add(recvMsg.elements().get(1));
