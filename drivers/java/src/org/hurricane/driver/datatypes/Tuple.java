@@ -46,7 +46,9 @@ public class Tuple {
         builder.append("(");
         for (int i = 0; i < mElements.size(); i++) {
             builder.append(mElements.get(i).toString());
-            builder.append(", ");
+            if (i + 1 < mElements.size()) {
+                builder.append(", ");
+            }
         }
         builder.append(")");
         return builder.toString();
