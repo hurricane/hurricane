@@ -1403,6 +1403,7 @@ function encode_str($data, StreamInterface $stream) {
         for ($i = 0; $i < $data_len; $i++) {
             encode(ord($data[$i]), $stream, false);
         }
+        $stream->write(chr(106));
     } else {
         $stream->write(chr(107));
         $stream->write(pack('n', $data_len));
