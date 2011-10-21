@@ -257,10 +257,7 @@ class SocketWrapper implements StreamInterface {
      * @return void
      */
     public function __construct($host, $port) {
-        $this->socket = socket_create(
-            AF_INET, SOCK_STREAM, getprotobyname('tcp')
-        );
-        socket_connect($this->socket, $host, $port);
+        $this->socket = fsockopen($host, $port);
     }
 
     /**
@@ -280,7 +277,7 @@ class SocketWrapper implements StreamInterface {
      * @return string
      */
     public function read($num) {
-        return socket_read($this->socket, $num);
+        return fread($this->socket, $num);
     }
 
     /**
@@ -291,7 +288,7 @@ class SocketWrapper implements StreamInterface {
      * @return string
      */
     public function write($data) {
-        return socket_write($this->socket, $data);
+        return fwrite($this->socket, $data);
     }
 
     /**
@@ -300,6 +297,7 @@ class SocketWrapper implements StreamInterface {
      * @return void
      */
     public function flush() {
+        fflush($this->socket);
     }
 
     /**
@@ -308,7 +306,7 @@ class SocketWrapper implements StreamInterface {
      * @return void
      */
     public function close() {
-        socket_close($this->socket);
+        fclose($this->socket);
     }
 }
 
