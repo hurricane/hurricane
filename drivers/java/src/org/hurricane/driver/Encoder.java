@@ -13,6 +13,7 @@ import org.hurricane.driver.datatypes.AtomCacheRef;
 import org.hurricane.driver.datatypes.Binary;
 import org.hurricane.driver.datatypes.BitBinary;
 import org.hurricane.driver.datatypes.ErlFunction;
+import org.hurricane.driver.datatypes.ErlangSerializable;
 import org.hurricane.driver.datatypes.Export;
 import org.hurricane.driver.datatypes.NewFunction;
 import org.hurricane.driver.datatypes.NewReference;
@@ -286,7 +287,12 @@ public class Encoder {
         if (strLen > 0xffff) {
             stream.write(Utils.toBytes(108));
             stream.write(Utils.packNumber(strLen));
-            stream.write(data.getBytes());
+
+            byte[] bytes = data.getBytes();
+            for (Integer i = 0; i < bytes.length; i++) {
+                encodeByte(bytes[i], stream);
+            }
+
             stream.write(Utils.toBytes(106));
         } else {
             stream.write(Utils.toBytes(107));
@@ -461,6 +467,11 @@ public class Encoder {
             stream.write(Utils.toBytes(131));
         }
 
+        if (data == null) {
+            encodeNil(null, stream);
+            return;
+        }
+
         Class<? extends Object> dc = data.getClass();
         if (dc == Float.class) {
             encodeDouble(((Float) data).doubleValue(), stream);
@@ -508,6 +519,8 @@ public class Encoder {
             encodeList((List<Object>) data, stream);
         } else if (data instanceof Map) {
             encodeMap((Map<Object, Object>) data, stream);
+        } else if (data instanceof ErlangSerializable) {
+            encode(((ErlangSerializable) data).toErlang(), stream, false);
         } else {
             throw new UnsupportedOperationException(dc.getName()
                     + " is not Erlang serializable!");

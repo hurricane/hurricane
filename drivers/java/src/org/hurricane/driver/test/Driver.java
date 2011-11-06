@@ -447,14 +447,13 @@ public class Driver {
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 82, 1),
                 new AtomCacheRef((byte) 1)));
 
-        decodeTests.add(new DecodeTest(Utils.toBytes(131, 97, 123), Byte
-                .valueOf("123")));
+        decodeTests.add(new DecodeTest(Utils.toBytes(131, 97, 123), 123));
 
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 98, 0, 0, 4, 210),
-                new Integer(1234)));
+                1234));
 
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 98, 255, 255, 255,
-                187), new Integer(-69)));
+                187), -69));
 
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 99, 49, 46, 49, 48,
                 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 56, 56,
@@ -479,18 +478,18 @@ public class Driver {
                 31, 0, Byte.valueOf("0"))));
 
         Tuple smallTupleTest = new Tuple();
-        smallTupleTest.elements().add(Byte.valueOf("42"));
-        smallTupleTest.elements().add(Byte.valueOf("69"));
+        smallTupleTest.elements().add(42);
+        smallTupleTest.elements().add(69);
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 104, 2, 97, 42, 97,
                 69), smallTupleTest));
 
         Tuple largeTupleTest = new Tuple();
-        largeTupleTest.elements().add(Byte.valueOf("42"));
-        largeTupleTest.elements().add(Byte.valueOf("69"));
+        largeTupleTest.elements().add(42);
+        largeTupleTest.elements().add(69);
         for (int i = 0; i < 279; i++) {
-            largeTupleTest.elements().add(Byte.valueOf("1"));
+            largeTupleTest.elements().add(1);
         }
-        largeTupleTest.elements().add(Byte.valueOf("69"));
+        largeTupleTest.elements().add(69);
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 105, 0, 0, 1, 26, 97,
                 42, 97, 69, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1,
                 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1, 97, 1,
@@ -534,16 +533,16 @@ public class Driver {
 
         ArrayList<Object> nilTerminatedList = new ArrayList<Object>();
         nilTerminatedList.add(1024);
-        nilTerminatedList.add(Byte.valueOf("69"));
-        nilTerminatedList.add(Byte.valueOf("42"));
+        nilTerminatedList.add(69);
+        nilTerminatedList.add(42);
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 108, 0, 0, 0, 3, 98,
                 0, 0, 4, 0, 97, 69, 97, 42, 106), nilTerminatedList));
 
         ArrayList<Object> builderTerminatedList = new ArrayList<Object>();
         builderTerminatedList.add(1024);
-        builderTerminatedList.add(Byte.valueOf("69"));
-        builderTerminatedList.add(Byte.valueOf("42"));
-        builderTerminatedList.add(Byte.valueOf("1"));
+        builderTerminatedList.add(69);
+        builderTerminatedList.add(42);
+        builderTerminatedList.add(1);
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 108, 0, 0, 0, 3, 98,
                 0, 0, 4, 0, 97, 69, 97, 42, 97, 1), builderTerminatedList));
 
@@ -605,8 +604,8 @@ public class Driver {
                 0, 0, 0, 31, 0, 0, 0, 0, 0), new NewFunction(Byte.valueOf("0"),
                 new String(Utils.toBytes(184, 143, 129, 148, 32, 145, 63, 179,
                         91, 201, 150, 94, 151, 97, 58, 227)), 1, new Atom(
-                        "erl_eval"), Byte.valueOf("20"), 67289768, new Pid(
-                        new Atom("nonode@nohost"), 31, 0, Byte.valueOf("0")),
+                        "erl_eval"), 20, 67289768, new Pid(new Atom(
+                        "nonode@nohost"), 31, 0, Byte.valueOf("0")),
                 new ArrayList<Object>())));
 
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 117, 0, 0, 0, 0, 103,
@@ -614,8 +613,7 @@ public class Driver {
                 111, 115, 116, 0, 0, 0, 31, 0, 0, 0, 0, 0, 100, 0, 9, 105, 108,
                 105, 97, 95, 97, 116, 111, 109, 97, 1, 97, 1), new ErlFunction(
                 new Pid(new Atom("nonode@nohost"), 31, 0, Byte.valueOf("0")),
-                new Atom("ilia_atom"), Byte.valueOf("1"), Byte.valueOf("1"),
-                new ArrayList<Object>())));
+                new Atom("ilia_atom"), 1, 1, new ArrayList<Object>())));
 
         decodeTests.add(new DecodeTest(Utils.toBytes(131, 113, 100, 0, 6, 101,
                 114, 108, 97, 110, 103, 100, 0, 4, 115, 101, 108, 102, 97, 0),

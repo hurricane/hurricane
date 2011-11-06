@@ -10,13 +10,23 @@ public class Tuple {
     /**
      * The list of elements contains in this Tuple.
      */
-    private List<Object> mElements;
+    private List<Object> mElements = new ArrayList<Object>();
 
     /**
      * Construct an empty tuple.
      */
     public Tuple() {
-        mElements = new ArrayList<Object>();
+    }
+
+    /**
+     * Construct a tuple based on the initial things given.
+     * 
+     * @param init
+     */
+    public Tuple(Object... init) {
+        for (Integer i = 0; i < init.length; i++) {
+            mElements.add(init[i]);
+        }
     }
 
     /**
@@ -45,7 +55,7 @@ public class Tuple {
         StringBuilder builder = new StringBuilder();
         builder.append("(");
         for (int i = 0; i < mElements.size(); i++) {
-            builder.append(mElements.get(i).toString());
+            builder.append(mElements.get(i));
             if (i + 1 < mElements.size()) {
                 builder.append(", ");
             }
