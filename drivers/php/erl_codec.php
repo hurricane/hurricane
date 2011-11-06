@@ -109,8 +109,8 @@ class StreamEmulator implements StreamInterface {
         if (strlen($this->data) < $this->pos + $bytes) {
             throw new Exception(
                 'Out of data to read (was asked for ' .
-                $bytes . 'bytes(s), only ' .
-                strlen($this->data) - $bytes . ' byte(s) remain.'
+                $bytes . ' bytes(s), only ' .
+                (strlen($this->data) - $this->pos) . ' byte(s) remain.'
             );
         }
 
@@ -277,7 +277,14 @@ class SocketWrapper implements StreamInterface {
      * @return string
      */
     public function read($num) {
-        return fread($this->socket, $num);
+        $chunks = array();
+        $len_read_so_far = 0;
+        while ($len_read_so_far < $num) {
+            $chunk = fread($this->socket, $num - $len_read_so_far);
+            $len_read_so_far += strlen($chunk);
+            $chunks[] = $chunk;
+        }
+        return implode('', $chunks);
     }
 
     /**

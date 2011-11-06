@@ -90,7 +90,13 @@ class SocketWrapper(object):
 
     def read(self, num):
         """Read the specified number of bytes."""
-        return self.socket.recv(num)
+        chunks = []
+        len_read_so_far = 0
+        while len_read_so_far < num:
+            chunk = self.socket.recv(num - len_read_so_far)
+            len_read_so_far += len(chunk)
+            chunks.append(chunk)
+        return ''.join(chunks)
 
     def write(self, data):
         """Write the given data."""

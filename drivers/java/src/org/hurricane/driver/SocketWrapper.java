@@ -48,8 +48,11 @@ public class SocketWrapper implements StreamInterface {
      * @throws IOException
      */
     public byte[] read(int bytes) throws IOException {
+        Integer offset = 0;
         byte[] rawBytes = new byte[bytes];
-        mIn.read(rawBytes, 0, bytes);
+        while (offset < bytes) {
+            offset += mIn.read(rawBytes, offset, bytes - offset);
+        }
         return rawBytes;
     }
 
