@@ -1123,6 +1123,8 @@ def Erlang::encode(data, stream, send_magic_byte=true)
     Erlang::encode_export(data, stream)
   elsif data_type.eql?(Hash)
     Erlang::encode_hash(data, stream)
+  elsif data.respond_to?('to_erlang')
+    Erlang::encode(data.to_erlang(), stream, false)
   else
     raise TypeError.new("A #{data_type} is not Erlang serializable")
   end
