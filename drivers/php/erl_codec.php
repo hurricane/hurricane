@@ -318,6 +318,19 @@ class SocketWrapper implements StreamInterface {
 }
 
 /**
+ * The interface to implement for object that know how to transform
+ * themselves into a data structure that the Erlang encoding functions
+ * know how to encode.
+ */
+interface Serializable {
+    /**
+     * The public function that returns a value to serialize as Erlang
+     * terms.
+     */
+    public function toErlang();
+}
+
+/**
  * Implements an Erlang atom cache ref.
  */
 class AtomCacheRef {
@@ -1599,8 +1612,9 @@ function encode($data, StreamInterface $stream, $send_magic_byte=true) {
     elseif ($data instanceof NewFunction)  { encode_new_function($data, $stream); }
     elseif ($data instanceof BitBinary)    { encode_bit_binary($data, $stream); }
     elseif ($data instanceof Export)       { encode_export($data, $stream); }
+    elseif ($data instanceof Serializable) { encode($data->toErlang(), $stream, false); }
     else {
-        throw new Exception($data . 'is not Erlang serializable');
+        throw new Exception(get_class($data) . ' is not Erlang serializable');
     }
 }
 
