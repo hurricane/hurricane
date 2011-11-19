@@ -18,13 +18,16 @@ class StreamEmulator(object):
 
     def __init__(self, data=None):
         """Initialize the stream emulator with an optional data argument."""
-        if data is None:
-            self.data = ''
-        elif type(data) == list:
-            self.data = ''.join([chr(x) for x in data])
-        else:
-            self.data = data
+        self.data = ''
         self.pos = 0
+        if data == None:
+            return 
+
+        if type(data) == dict:
+            self.pos = data['pos']
+            self.write(data['data'])
+        else:
+            self.write(data)
 
     def read(self, bytes):
         """
@@ -55,6 +58,12 @@ class StreamEmulator(object):
         """Reset the position and clear the data buffer."""
         self.data = ''
         self.pos = 0
+
+    def __repr__(self):
+        return 'StreamEmulator(%s)' % self.__dict__
+
+    def __str__(self):
+        return 'StreamEmulator: %s' % self.__dict__
 
 class StdioWrapper(object):
     """
@@ -888,8 +897,7 @@ def encode(data, stream, send_magic_byte=True):
     elif data_type == BitBinary:    encode_bit_binary(data, stream)
     elif data_type == Export:       encode_export(data, stream)
     elif data_type == dict:         encode_dict(data, stream)
-    else:
-        raise ValueError('A %s is not Erlang serializable' % data_type)
+    else: encode(data.to_erlang(), stream, False)
 
 class Gateway:
     """
