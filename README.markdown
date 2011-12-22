@@ -37,10 +37,9 @@ the system.
 Next Steps:
 -----------
 
-- Documentation (code, example config, etc)
-- Add drivers for more languages (Go, C++, etc)
-- Build out multi-node distribution (connecting Hurricane instances
-  together)
+- Make messaging a behavior, so that anything can use a simpler
+  interface and implement a few functions to do it
+- Add drivers for more languages (Javascript, Go, C++, etc)
 
 License (New BSD License)
 -------------------------
