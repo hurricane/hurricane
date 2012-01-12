@@ -25,8 +25,7 @@ log(Level, Message) ->
 %% Convenience function to log a message that needs to be formatted
 %% (formatting is handled by io_lib).
 log(Level, FormatStr, FormatArgs) ->
-    Message = io_lib:format(FormatStr, FormatArgs),
-    ?MODULE ! {log, format_local_time(), Level, Message}.
+    ?MODULE ! {log, format_local_time(), Level, FormatStr, FormatArgs}.
 
 %% Gets all log levels that are loggable (the log levels as defined in
 %% this module are sorted, so this function scans until it hits the
@@ -55,9 +54,10 @@ is_loggable(LoggableLevels, MessageLevel) ->
 %% possibly logged.
 loop(LoggableLevels) ->
     receive
-        {log, Timestamp, Level, Message} ->
+        {log, Timestamp, Level, FormatStr, FormatArgs} ->
             case is_loggable(LoggableLevels, Level) of
                 true ->
+                    Message = io_lib:format(FormatStr, FormatArgs),
                     io:format(
                         standard_error,
                         "[~s] [~s] ~s~n",
