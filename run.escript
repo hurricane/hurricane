@@ -34,6 +34,7 @@ main(Args) ->
     ),
     code:add_pathsz(proplists:get_value(add_code_paths, Config, [])),
 
+    os:cmd(filename:join(code:root_dir(), "bin/epmd") ++ " -daemon"),
     hurricane:start(
         [{config_path, ConfigPath}, {load_config_fun, LoadConfigFun}]
     ),

@@ -35,15 +35,16 @@ public class Decoder {
     }
 
     /**
-     * Decode and return a small integer (byte).
+     * Decode and return a small integer.
      * 
      * @param stream
      * @return The small integer
      * @throws IOException
      */
-    public static Byte decodeSmallIntegerExt(StreamInterface stream)
+    public static Integer decodeSmallIntegerExt(StreamInterface stream)
             throws IOException {
-        return stream.read(1)[0];
+        Byte b = stream.read(1)[0];
+        return b.intValue() & 0xff;
     }
 
     /**
@@ -359,7 +360,7 @@ public class Decoder {
             throws IOException {
         Object module = decode(stream, false);
         Object function = decode(stream, false);
-        Byte arity = (Byte) decode(stream, false);
+        Byte arity = ((Integer) decode(stream, false)).byteValue();
 
         return new Export(module, function, arity);
     }

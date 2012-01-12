@@ -76,7 +76,7 @@ class Erlang::StreamEmulator
   # aren't enough bytes to be read.
   def read(num)
     if @data.bytesize() < @pos + num
-      raise IndexError.new("Out of data to read (was asked for #{num} byte(s), only #{data.size() - pos} byte(s) remain)")
+      raise IndexError.new("Out of data to read (was asked for #{num} byte(s), only #{data.size() - @pos} byte(s) remain)")
     end
     read_data = @data[@pos..@pos + num - 1]
     @pos += num
@@ -140,7 +140,14 @@ class Erlang::SocketWrapper
 
   # Read the specified number of bytes.
   def read(num)
-    @sock.recv(num)
+    chunks = []
+    len_read_so_far = 0
+    while len_read_so_far < num
+      chunk = @sock.recv(num - len_read_so_far)
+      len_read_so_far += chunk.bytesize()
+      chunks << chunk
+    end
+    chunks.join('')
   end
 
   # Write the given data.
@@ -1116,6 +1123,8 @@ def Erlang::encode(data, stream, send_magic_byte=true)
     Erlang::encode_export(data, stream)
   elsif data_type.eql?(Hash)
     Erlang::encode_hash(data, stream)
+  elsif data.respond_to?('to_erlang')
+    Erlang::encode(data.to_erlang(), stream, false)
   else
     raise TypeError.new("A #{data_type} is not Erlang serializable")
   end
