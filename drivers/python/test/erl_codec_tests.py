@@ -9,6 +9,7 @@ sys.path.append(
         os.path.dirname(
             os.path.abspath(__file__))))
 import erl_codec
+from cStringIO import StringIO
 
 decode_tests = [
     ([131,82,1],
@@ -389,28 +390,32 @@ fails = []
 sys.stdout.write('Decode: ')
 for decode_test in decode_tests:
     input, expected = decode_test
-    stream = erl_codec.StreamEmulator(input)
+    stream = StringIO(''.join(chr(x) for x in input))
     actual = erl_codec.decode(stream)
     if expected == actual:
         sys.stdout.write('.')
     else:
         fails.append((expected, actual))
         sys.stdout.write('F')
+    stream.close()
 
 print
 
 sys.stdout.write('Encode: ')
 for encode_test in encode_tests:
     input, expected = encode_test
-    stream = erl_codec.StreamEmulator()
+    stream = StringIO()
     erl_codec.encode(input, stream)
-    actual = [ord(x) for x in stream.data]
+    actual = [ord(x) for x in stream.getvalue()]
     if expected == actual:
         sys.stdout.write('.')
     else:
         fails.append((expected, actual))
         sys.stdout.write('F')
+    stream.close()
+
 print
+
 for fail in fails:
     expected, actual = fail
     print 'Expected: %s\nActual: %s' % (repr(expected), repr(actual))

@@ -13,58 +13,6 @@ from types import NoneType
 from cStringIO import StringIO
 from sys import stdin, stdout, stderr
 
-class StreamEmulator(object):
-    """Emulates a stream. Highly useful for debugging."""
-
-    def __init__(self, data=None):
-        """Initialize the stream emulator with an optional data argument."""
-        self.data = ''
-        self.pos = 0
-        if data == None:
-            return 
-
-        if type(data) == dict:
-            self.pos = data['pos']
-            self.write(data['data'])
-        else:
-            self.write(data)
-
-    def read(self, bytes):
-        """
-        Read bytes number of data and return it. Throw a ValueError if
-        there aren't enough bytes to be read.
-        """
-        if len(self.data) < self.pos + bytes:
-            raise ValueError(
-                'Out of data to read (was asked for %s '
-                'byte(s), only %s byte(s) remain)' % \
-                (bytes, len(self.data) - self.pos))
-        read_data = self.data[self.pos:self.pos + bytes]
-        self.pos += bytes
-        return read_data
-
-    def write(self, data):
-        """Write either binary data or a list of bytes to the stream."""
-        if type(data) == list:
-            self.data += ''.join([chr(x) for x in data])
-        else:
-            self.data += data
-
-    def flush(self):
-        """Exist for interface completeness."""
-        pass
-
-    def clear(self):
-        """Reset the position and clear the data buffer."""
-        self.data = ''
-        self.pos = 0
-
-    def __repr__(self):
-        return 'StreamEmulator(%s)' % self.__dict__
-
-    def __str__(self):
-        return 'StreamEmulator: %s' % self.__dict__
-
 class StdioWrapper(object):
     """
     Wraps Standard I/O input and output facilities; exposes a standard
@@ -916,7 +864,6 @@ class Gateway:
             self.set_stream(StdioWrapper())
         else:
             self.set_stream(stream)
-        self.stream_wrapper = StreamEmulator()
 
     def set_stream(self, stream):
         """Close any open stream and set the new one."""
@@ -936,17 +883,19 @@ class Gateway:
             raise ValueError('Message size payload should be 4 bytes')
 
         message_len, = unpack('>L', message_len)
-        self.stream_wrapper.clear()
-        self.stream_wrapper.write(
-            self.stream.read(message_len))
-        message = decode(self.stream_wrapper)
+        stream_wrapper = StringIO()
+        stream_wrapper.write(self.stream.read(message_len))
+        stream_wrapper.seek(0)
+        message = decode(stream_wrapper)
+        stream_wrapper.close()
         return message
 
     def send(self, message):
         """Send one message to Hurricane."""
-        self.stream_wrapper.clear()
-        encode(message, self.stream_wrapper)
+        stream_wrapper = StringIO()
+        encode(message, stream_wrapper)
         self.stream.write(
-            pack('>L', len(self.stream_wrapper.data)))
-        self.stream.write(self.stream_wrapper.data)
+            pack('>L', len(stream_wrapper.getvalue())))
+        self.stream.write(stream_wrapper.getvalue())
+        stream_wrapper.close()
         self.stream.flush()
