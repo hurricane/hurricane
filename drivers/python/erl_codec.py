@@ -13,6 +13,7 @@ from types import NoneType
 from cStringIO import StringIO
 from sys import stdin, stdout, stderr
 
+
 class StdioWrapper(object):
     """
     Wraps Standard I/O input and output facilities; exposes a standard
@@ -34,6 +35,7 @@ class StdioWrapper(object):
     def close():
         """Exist for interface completeness."""
         pass
+
 
 class SocketWrapper(object):
     """
@@ -67,6 +69,7 @@ class SocketWrapper(object):
         """Close the socket."""
         self.socket.close()
 
+
 class AtomCacheRef(object):
     """Implements an Erlang atom cache ref."""
 
@@ -86,6 +89,7 @@ class AtomCacheRef(object):
         """Compare self with another object of the same type."""
         return self.value == other.value
 
+
 class Atom(object):
     """Implements an Erlang atom."""
 
@@ -104,6 +108,7 @@ class Atom(object):
     def __eq__(self, other):
         """Compare self with another object of the same type."""
         return self.name == other.name
+
 
 class Reference(object):
     """Implements an Erlang reference."""
@@ -129,6 +134,7 @@ class Reference(object):
         return self.atom == other.atom and \
                self.identifier == other.identifier and \
                self.creation == other.creation
+
 
 class NewReference(object):
     """
@@ -159,6 +165,7 @@ class NewReference(object):
                self.creation == other.creation and \
                self.ids == other.ids
 
+
 class Port(object):
     """Implements an Erlang port."""
 
@@ -183,6 +190,7 @@ class Port(object):
         return self.atom == other.atom and \
                self.identifier == other.identifier and \
                self.creation == other.creation
+
 
 class Pid(object):
     """Implements an Erlang pid (process identifier)."""
@@ -214,6 +222,7 @@ class Pid(object):
                self.serial == other.serial and \
                self.creation == other.creation
 
+
 class Binary(object):
     """
     Implements an Erlang binary data container.
@@ -236,6 +245,7 @@ class Binary(object):
     def __eq__(self, other):
         """Compare self with another object of the same type."""
         return self.data == other.data
+
 
 class BitBinary(object):
     """
@@ -262,6 +272,7 @@ class BitBinary(object):
         return self.bits == other.bits and \
                self.data == other.data
 
+
 class Export(object):
     """Implements an Erlang export."""
 
@@ -286,6 +297,7 @@ class Export(object):
         return self.module == other.module and \
                self.function == other.function and \
                self.arity == other.arity
+
 
 class Function(object):
     """Implements an Erlang function (defined at compile-time)."""
@@ -318,6 +330,7 @@ class Function(object):
                self.index == other.index and \
                self.uniq == other.uniq and \
                self.free_vars == other.free_vars
+
 
 class NewFunction(object):
     """
@@ -364,6 +377,7 @@ class NewFunction(object):
                self.pid == other.pid and \
                self.free_vars == other.free_vars
 
+
 def proplist_to_dict(proplist):
     """Turn an Erlang-style proplist into a dict."""
     result = {}
@@ -374,10 +388,12 @@ def proplist_to_dict(proplist):
         result[element[0]] = element[1]
     return result
 
+
 def decode_atom_ext(stream):
     """Decode and return an Erlang atom."""
     atom_len, = unpack('>h', stream.read(2))
     return Atom(stream.read(atom_len))
+
 
 def decode_reference_ext(stream):
     """Decode and return an Erlang reference."""
@@ -386,12 +402,14 @@ def decode_reference_ext(stream):
     creation = ord(stream.read(1))
     return Reference(atom, identifier, creation)
 
+
 def decode_port_ext(stream):
     """Decode and return an Erlang port."""
     atom = decode(stream, False)
     identifier, = unpack('>L', stream.read(4))
     creation = ord(stream.read(1))
     return Port(atom, identifier, creation)
+
 
 def decode_pid_ext(stream):
     """Decode and return an Erlang pid."""
@@ -400,6 +418,7 @@ def decode_pid_ext(stream):
     serial, = unpack('>L', stream.read(4))
     creation = ord(stream.read(1))
     return Pid(atom, identifier, serial, creation)
+
 
 def decode_small_tuple_ext(stream):
     """Decode and return a small Erlang tuple (fewer than 256 elements)."""
@@ -410,6 +429,7 @@ def decode_small_tuple_ext(stream):
         elements.append(value)
     return tuple(elements)
 
+
 def decode_large_tuple_ext(stream):
     """Decode and return a large Erlang tuple (more than 256 elements)."""
     tuple_len, = unpack('>L', stream.read(4))
@@ -419,14 +439,17 @@ def decode_large_tuple_ext(stream):
         elements.append(value)
     return tuple(elements)
 
+
 def decode_nil_ext(stream):
     """Decode and return a nil/null/None."""
     return None
+
 
 def decode_string_ext(stream):
     """Decode and return a string."""
     str_len, = unpack('>h', stream.read(2))
     return stream.read(str_len)
+
 
 def decode_list_ext(stream):
     """
@@ -453,10 +476,12 @@ def decode_list_ext(stream):
     else:
         return elements
 
+
 def decode_binary_ext(stream):
     """Decode and return an Erlang binary."""
     bin_len, = unpack('>L', stream.read(4))
     return Binary(stream.read(bin_len))
+
 
 def decode_small_big_ext(stream):
     """Decode and return "small" big number."""
@@ -469,6 +494,7 @@ def decode_small_big_ext(stream):
         num *= -1
     return num
 
+
 def decode_large_big_ext(stream):
     """Decode and return "large" big number."""
     num_bytes, = unpack('>L', stream.read(4))
@@ -479,6 +505,7 @@ def decode_large_big_ext(stream):
     if sign == 1:
         num *= -1
     return num
+
 
 def decode_new_reference_ext(stream):
     """Decode and return an Erlang "new reference"."""
@@ -491,11 +518,13 @@ def decode_new_reference_ext(stream):
         identifiers.appendleft(identifier)
     return NewReference(atom, creation, list(identifiers))
 
+
 def decode_small_atom_ext(stream):
     """Decode and return a small Erlang atom."""
     atom_len = ord(stream.read(1))
     atom_name = stream.read(atom_len)
     return Atom(atom_name)
+
 
 def decode_fun_ext(stream):
     """Decode and return an Erlang function."""
@@ -512,6 +541,7 @@ def decode_fun_ext(stream):
         free_vars = None
 
     return Function(pid, module, index, uniq, free_vars)
+
 
 def decode_new_fun_ext(stream):
     """Decode and return an Erlang "new function"."""
@@ -534,6 +564,7 @@ def decode_new_fun_ext(stream):
     return NewFunction(
         arity, uniq, index, module, old_index, old_uniq, pid, free_vars)
 
+
 def decode_export_ext(stream):
     """Decode and return an Erlang export."""
     module = decode(stream, False)
@@ -541,30 +572,37 @@ def decode_export_ext(stream):
     arity = decode(stream, False)
     return Export(module, function, arity)
 
+
 def decode_new_float_ext(stream):
     """Decode and return an IEEE 8-byte floating-point number."""
     return unpack('>d', stream.read(8))[0]
+
 
 def decode_bit_binary_ext(stream):
     """Decode and return an Erlang bit binary."""
     length = unpack('>L', stream.read(4))[0]
     return BitBinary(ord(stream.read(1)), stream.read(length))
 
+
 def decode_atom_cache_ref(stream):
     """Decode and return an Erlang atom cache ref."""
     return AtomCacheRef(ord(stream.read(1)))
+
 
 def decode_small_integer_ext(stream):
     """Decode and return a small integer (byte)."""
     return ord(stream.read(1))
 
+
 def decode_integer_ext(stream):
     """Decode and return an integer."""
     return unpack('>l', stream.read(4))[0]
 
+
 def decode_float_ext(stream):
     """Decode and return a float (represented by Erlang as a string)."""
     return float(''.join([x for x in stream.read(31) if ord(x) > 0]))
+
 
 def decode(stream, check_dist_tag=True):
     """
@@ -584,37 +622,62 @@ def decode(stream, check_dist_tag=True):
     else:
         ext_code = first_byte
 
-    if   ext_code == 70:  return decode_new_float_ext(stream)
-    elif ext_code == 77:  return decode_bit_binary_ext(stream)
-    elif ext_code == 82:  return decode_atom_cache_ref(stream)
-    elif ext_code == 97:  return decode_small_integer_ext(stream)
-    elif ext_code == 98:  return decode_integer_ext(stream)
-    elif ext_code == 99:  return decode_float_ext(stream)
-    elif ext_code == 100: return decode_atom_ext(stream)
-    elif ext_code == 101: return decode_reference_ext(stream)
-    elif ext_code == 102: return decode_port_ext(stream)
-    elif ext_code == 103: return decode_pid_ext(stream)
-    elif ext_code == 104: return decode_small_tuple_ext(stream)
-    elif ext_code == 105: return decode_large_tuple_ext(stream)
-    elif ext_code == 106: return decode_nil_ext(stream)
-    elif ext_code == 107: return decode_string_ext(stream)
-    elif ext_code == 108: return decode_list_ext(stream)
-    elif ext_code == 109: return decode_binary_ext(stream)
-    elif ext_code == 110: return decode_small_big_ext(stream)
-    elif ext_code == 111: return decode_large_big_ext(stream)
-    elif ext_code == 112: return decode_new_fun_ext(stream)
-    elif ext_code == 113: return decode_export_ext(stream)
-    elif ext_code == 114: return decode_new_reference_ext(stream)
-    elif ext_code == 115: return decode_small_atom_ext(stream)
-    elif ext_code == 117: return decode_fun_ext(stream)
+    if ext_code == 70:
+        return decode_new_float_ext(stream)
+    elif ext_code == 77:
+        return decode_bit_binary_ext(stream)
+    elif ext_code == 82:
+        return decode_atom_cache_ref(stream)
+    elif ext_code == 97:
+        return decode_small_integer_ext(stream)
+    elif ext_code == 98:
+        return decode_integer_ext(stream)
+    elif ext_code == 99:
+        return decode_float_ext(stream)
+    elif ext_code == 100:
+        return decode_atom_ext(stream)
+    elif ext_code == 101:
+        return decode_reference_ext(stream)
+    elif ext_code == 102:
+        return decode_port_ext(stream)
+    elif ext_code == 103:
+        return decode_pid_ext(stream)
+    elif ext_code == 104:
+        return decode_small_tuple_ext(stream)
+    elif ext_code == 105:
+        return decode_large_tuple_ext(stream)
+    elif ext_code == 106:
+        return decode_nil_ext(stream)
+    elif ext_code == 107:
+        return decode_string_ext(stream)
+    elif ext_code == 108:
+        return decode_list_ext(stream)
+    elif ext_code == 109:
+        return decode_binary_ext(stream)
+    elif ext_code == 110:
+        return decode_small_big_ext(stream)
+    elif ext_code == 111:
+        return decode_large_big_ext(stream)
+    elif ext_code == 112:
+        return decode_new_fun_ext(stream)
+    elif ext_code == 113:
+        return decode_export_ext(stream)
+    elif ext_code == 114:
+        return decode_new_reference_ext(stream)
+    elif ext_code == 115:
+        return decode_small_atom_ext(stream)
+    elif ext_code == 117:
+        return decode_fun_ext(stream)
     else:
         raise ValueError(
             'Unable to decode Erlang EXT data type: %s' % ext_code)
+
 
 def encode_float(data, stream):
     """Encode a floating-point number into the stream."""
     stream.write(chr(70))
     stream.write(pack('>d', data))
+
 
 def encode_bit_binary(data, stream):
     """Encode an Erlang bit binary into the stream."""
@@ -623,20 +686,24 @@ def encode_bit_binary(data, stream):
     stream.write(chr(data.bits))
     stream.write(data.data)
 
+
 def encode_atom_cache_ref(data, stream):
     """Encode an Erlang atom cache ref into the stream."""
     stream.write(chr(82))
     stream.write(chr(data.value))
+
 
 def encode_small_integer(data, stream):
     """Encode a small integer (byte) into the stream."""
     stream.write(chr(97))
     stream.write(chr(data))
 
+
 def encode_integer(data, stream):
     """Encode an integer into the stream."""
     stream.write(chr(98))
     stream.write(pack('>l', data))
+
 
 def encode_long(data, stream):
     """Encode a large number into the stream."""
@@ -660,6 +727,7 @@ def encode_long(data, stream):
     stream.write(chr(sign))
     stream.write(''.join([chr(x) for x in bytes]))
 
+
 def encode_number(data, stream):
     """Encode any-size number into the stream."""
     if 0 <= data <= 0xff:
@@ -668,6 +736,7 @@ def encode_number(data, stream):
         encode_integer(data, stream)
     else:
         encode_long(data, stream)
+
 
 def encode_atom(data, stream):
     """Encode an Erlang atom into the stream."""
@@ -680,12 +749,14 @@ def encode_atom(data, stream):
         stream.write(pack('>h', name_len))
     stream.write(data.name)
 
+
 def encode_reference(data, stream):
     """Encode an Erlang reference into the stream."""
     stream.write(chr(101))
     encode(data.atom, stream, False)
     stream.write(pack('>L', data.identifier))
     stream.write(chr(data.creation))
+
 
 def encode_port(data, stream):
     """Encode an Erlang port into the stream."""
@@ -694,6 +765,7 @@ def encode_port(data, stream):
     stream.write(pack('>L', data.identifier))
     stream.write(chr(data.creation))
 
+
 def encode_pid(data, stream):
     """Encode an Erlang pid into the stream."""
     stream.write(chr(103))
@@ -701,6 +773,7 @@ def encode_pid(data, stream):
     stream.write(pack('>L', data.identifier))
     stream.write(pack('>L', data.serial))
     stream.write(chr(data.creation))
+
 
 def encode_tuple(data, stream):
     """Encode a tuple into the stream."""
@@ -714,9 +787,11 @@ def encode_tuple(data, stream):
     for i in range(data_len):
         encode(data[i], stream, False)
 
+
 def encode_none(data, stream):
     """Encode a NoneType into the stream (as Erlang nil)."""
     stream.write(chr(106))
+
 
 def encode_str(data, stream):
     """Encode a string into the stream."""
@@ -728,6 +803,7 @@ def encode_str(data, stream):
         stream.write(pack('>h', data_len))
         stream.write(data)
 
+
 def encode_list(data, stream):
     """Encode a list into the stream."""
     data_len = len(data)
@@ -737,11 +813,13 @@ def encode_list(data, stream):
         encode(data[i], stream, False)
     stream.write(chr(106))
 
+
 def encode_binary(data, stream):
     """Encode an Erlang binary into the stream."""
     stream.write(chr(109))
     stream.write(pack('>L', len(data.data)))
     stream.write(data.data)
+
 
 def encode_new_reference(data, stream):
     """Encode an Erlang new reference into the stream."""
@@ -752,6 +830,7 @@ def encode_new_reference(data, stream):
     stream.write(chr(data.creation))
     for identifier in data.ids:
         stream.write(pack('>L', identifier))
+
 
 def encode_function(data, stream):
     """Encode an Erlang function into the stream."""
@@ -768,6 +847,7 @@ def encode_function(data, stream):
     if free_vars_len > 0:
         for free_var in data.free_vars:
             stream.write(pack('>L', free_var))
+
 
 def encode_new_function(data, stream):
     """Encode an Erlang "new function" into the stream."""
@@ -794,12 +874,14 @@ def encode_new_function(data, stream):
     stream.write(pack('>L', len(bytes_value) + 4))
     stream.write(bytes_value)
 
+
 def encode_bit_binary(data, stream):
     """Encode an Erlang bit binary into the stream."""
     stream.write(chr(77))
     stream.write(pack('>L', len(data.data)))
     stream.write(chr(data.bits))
     stream.write(data.data)
+
 
 def encode_export(data, stream):
     """Encode an Erlang export into the stream."""
@@ -808,9 +890,11 @@ def encode_export(data, stream):
     encode(data.function, stream, False)
     encode(data.arity, stream, False)
 
+
 def encode_dict(data, stream):
     """Encode a dict into the stream (as a property list)."""
     encode(zip(data.keys(), data.values()), stream, False)
+
 
 def encode(data, stream, send_magic_byte=True):
     """
@@ -825,27 +909,49 @@ def encode(data, stream, send_magic_byte=True):
         stream.write(chr(131))
 
     data_type = type(data)
-    if   data_type == float:        encode_float(data, stream)
-    elif data_type == BitBinary:    encode_bit_binary(data, stream)
-    elif data_type == AtomCacheRef: encode_atom_cache_ref(data, stream)
-    elif data_type == int:          encode_number(data, stream)
-    elif data_type == long:         encode_number(data, stream)
-    elif data_type == Atom:         encode_atom(data, stream)
-    elif data_type == Reference:    encode_reference(data, stream)
-    elif data_type == Port:         encode_port(data, stream)
-    elif data_type == Pid:          encode_pid(data, stream)
-    elif data_type == tuple:        encode_tuple(data, stream)
-    elif data_type == NoneType:     encode_none(data, stream)
-    elif data_type == str:          encode_str(data, stream)
-    elif data_type == list:         encode_list(data, stream)
-    elif data_type == Binary:       encode_binary(data, stream)
-    elif data_type == NewReference: encode_new_reference(data, stream)
-    elif data_type == Function:     encode_function(data, stream)
-    elif data_type == NewFunction:  encode_new_function(data, stream)
-    elif data_type == BitBinary:    encode_bit_binary(data, stream)
-    elif data_type == Export:       encode_export(data, stream)
-    elif data_type == dict:         encode_dict(data, stream)
-    else: encode(data.to_erlang(), stream, False)
+    if data_type == float:
+        encode_float(data, stream)
+    elif data_type == BitBinary:
+        encode_bit_binary(data, stream)
+    elif data_type == AtomCacheRef:
+        encode_atom_cache_ref(data, stream)
+    elif data_type == int:
+        encode_number(data, stream)
+    elif data_type == long:
+        encode_number(data, stream)
+    elif data_type == Atom:
+        encode_atom(data, stream)
+    elif data_type == Reference:
+        encode_reference(data, stream)
+    elif data_type == Port:
+        encode_port(data, stream)
+    elif data_type == Pid:
+        encode_pid(data, stream)
+    elif data_type == tuple:
+        encode_tuple(data, stream)
+    elif data_type == NoneType:
+        encode_none(data, stream)
+    elif data_type == str:
+        encode_str(data, stream)
+    elif data_type == list:
+        encode_list(data, stream)
+    elif data_type == Binary:
+        encode_binary(data, stream)
+    elif data_type == NewReference:
+        encode_new_reference(data, stream)
+    elif data_type == Function:
+        encode_function(data, stream)
+    elif data_type == NewFunction:
+        encode_new_function(data, stream)
+    elif data_type == BitBinary:
+        encode_bit_binary(data, stream)
+    elif data_type == Export:
+        encode_export(data, stream)
+    elif data_type == dict:
+        encode_dict(data, stream)
+    else:
+        encode(data.to_erlang(), stream, False)
+
 
 class Gateway:
     """
