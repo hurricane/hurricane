@@ -935,8 +935,6 @@ def encode(data, stream, send_magic_byte=True):
         encode_function(data, stream)
     elif data_type == NewFunction:
         encode_new_function(data, stream)
-    elif data_type == BitBinary:
-        encode_bit_binary(data, stream)
     elif data_type == Export:
         encode_export(data, stream)
     elif data_type == dict:
