@@ -11,7 +11,7 @@ from struct import pack, unpack
 from collections import deque
 from types import NoneType
 from cStringIO import StringIO
-from sys import stdin, stdout, stderr
+from sys import stdin, stdout
 
 
 class StdioWrapper(object):
@@ -32,7 +32,7 @@ class StdioWrapper(object):
         """Override buffering and flush all data to Standard Out."""
         stdout.flush()
 
-    def close():
+    def close(self):
         """Exist for interface completeness."""
         pass
 
@@ -65,7 +65,7 @@ class SocketWrapper(object):
         """Exist for interface completeness."""
         pass
 
-    def close():
+    def close(self):
         """Close the socket."""
         self.socket.close()
 
@@ -424,7 +424,7 @@ def decode_small_tuple_ext(stream):
     """Decode and return a small Erlang tuple (fewer than 256 elements)."""
     tuple_len = ord(stream.read(1))
     elements = []
-    for i in range(tuple_len):
+    for _index in range(tuple_len):
         value = decode(stream, False)
         elements.append(value)
     return tuple(elements)
@@ -434,13 +434,13 @@ def decode_large_tuple_ext(stream):
     """Decode and return a large Erlang tuple (more than 256 elements)."""
     tuple_len, = unpack('>L', stream.read(4))
     elements = []
-    for i in range(tuple_len):
+    for _index in range(tuple_len):
         value = decode(stream, False)
         elements.append(value)
     return tuple(elements)
 
 
-def decode_nil_ext(stream):
+def decode_nil_ext(_stream):
     """Decode and return a nil/null/None."""
     return None
 
@@ -463,7 +463,7 @@ def decode_list_ext(stream):
     list_len, = unpack('>L', stream.read(4))
     elements = []
     is_str = True
-    for i in range(list_len):
+    for _index in range(list_len):
         value = decode(stream, False)
         is_str = is_str and type(value) == int and value < 256
         elements.append(value)
@@ -513,7 +513,7 @@ def decode_new_reference_ext(stream):
     atom = decode(stream, False)
     creation = ord(stream.read(1))
     identifiers = deque()
-    for i in range(length):
+    for _index in range(length):
         identifier, = unpack('>L', stream.read(4))
         identifiers.appendleft(identifier)
     return NewReference(atom, creation, list(identifiers))
@@ -534,7 +534,7 @@ def decode_fun_ext(stream):
     index = decode(stream, False)
     uniq = decode(stream, False)
     free_vars = []
-    for i in range(num_free):
+    for _index in range(num_free):
         free_var = decode(stream, False)
         free_vars.append(free_var)
     if not len(free_vars):
@@ -545,7 +545,7 @@ def decode_fun_ext(stream):
 
 def decode_new_fun_ext(stream):
     """Decode and return an Erlang "new function"."""
-    size, = unpack('>L', stream.read(4))
+    _size, = unpack('>L', stream.read(4))
     arity = ord(stream.read(1))
     uniq = stream.read(16)
     index, = unpack('>L', stream.read(4))
@@ -555,7 +555,7 @@ def decode_new_fun_ext(stream):
     old_uniq = decode(stream, False)
     pid = decode(stream, False)
     free_vars = []
-    for i in range(num_free):
+    for _index in range(num_free):
         free_var = decode(stream, False)
         free_vars.append(free_var)
     if not len(free_vars):
@@ -712,20 +712,20 @@ def encode_long(data, stream):
         sign = 1
     else:
         sign = 0
-    bytes = []
+    byte_list = []
 
     while data != 0:
-        bytes.append(data & 255)
+        byte_list.append(data & 255)
         data = data >> 8
-    bytes_len = len(bytes)
-    if bytes_len <= 255:
+    byte_list_len = len(byte_list)
+    if byte_list_len <= 255:
         stream.write(chr(110))
-        stream.write(chr(bytes_len))
+        stream.write(chr(byte_list_len))
     else:
         stream.write(chr(111))
-        stream.write(pack('>L', len(bytes)))
+        stream.write(pack('>L', len(byte_list)))
     stream.write(chr(sign))
-    stream.write(''.join([chr(x) for x in bytes]))
+    stream.write(''.join([chr(x) for x in byte_list]))
 
 
 def encode_number(data, stream):
@@ -788,7 +788,7 @@ def encode_tuple(data, stream):
         encode(data[i], stream, False)
 
 
-def encode_none(data, stream):
+def encode_none(_data, stream):
     """Encode a NoneType into the stream (as Erlang nil)."""
     stream.write(chr(106))
 
@@ -857,30 +857,22 @@ def encode_new_function(data, stream):
     else:
         free_vars_len = len(data.free_vars)
 
-    bytes = StringIO()
-    bytes.write(chr(data.arity))
-    bytes.write(data.uniq)
-    bytes.write(pack('>L', data.index))
-    bytes.write(pack('>L', free_vars_len))
-    encode(data.module, bytes, False)
-    encode(data.old_index, bytes, False)
-    encode(data.old_uniq, bytes, False)
-    encode(data.pid, bytes, False)
+    byte_list = StringIO()
+    byte_list.write(chr(data.arity))
+    byte_list.write(data.uniq)
+    byte_list.write(pack('>L', data.index))
+    byte_list.write(pack('>L', free_vars_len))
+    encode(data.module, byte_list, False)
+    encode(data.old_index, byte_list, False)
+    encode(data.old_uniq, byte_list, False)
+    encode(data.pid, byte_list, False)
     if free_vars_len > 0:
         for free_var in data.free_vars:
-            bytes.write(pack('>L', free_var))
-    bytes_value = bytes.getvalue()
-    bytes.close()
-    stream.write(pack('>L', len(bytes_value) + 4))
-    stream.write(bytes_value)
-
-
-def encode_bit_binary(data, stream):
-    """Encode an Erlang bit binary into the stream."""
-    stream.write(chr(77))
-    stream.write(pack('>L', len(data.data)))
-    stream.write(chr(data.bits))
-    stream.write(data.data)
+            byte_list.write(pack('>L', free_var))
+    byte_list_value = byte_list.getvalue()
+    byte_list.close()
+    stream.write(pack('>L', len(byte_list_value) + 4))
+    stream.write(byte_list_value)
 
 
 def encode_export(data, stream):
