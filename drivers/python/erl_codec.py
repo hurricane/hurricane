@@ -150,7 +150,7 @@ class NewReference(object):
     def __str__(self):
         """Return the human-readble representation."""
         return '%s#Ref<%s.%s>' % (
-            self.atom, self.creation, '.'.join([str(x) for x in self.ids]))
+            self.atom, self.creation, '.'.join(str(x) for x in self.ids))
 
     def __repr__(self):
         """Return the Pythonic representation."""
@@ -236,7 +236,7 @@ class Binary(object):
 
     def __str__(self):
         """Return the human-readble representation."""
-        return '<<%s>>' % ','.join([str(ord(x)) for x in self.data])
+        return '<<%s>>' % ','.join(str(ord(x)) for x in self.data)
 
     def __repr__(self):
         """Return the Pythonic representation."""
@@ -260,7 +260,7 @@ class BitBinary(object):
 
     def __str__(self):
         """Return the human-readble representation."""
-        init = ','.join([str(ord(x)) for x in self.data[0:-1]])
+        init = ','.join(str(ord(x)) for x in self.data[0:-1])
         return '<<%s, %s:%s>>' % (init, ord(self.data[-1]), self.bits)
 
     def __repr__(self):
@@ -364,7 +364,7 @@ class NewFunction(object):
         return "NewFunction(%s, %s, %s, %s, %s, %s, %s, [%s])" % (
             repr(self.arity), repr(self.uniq), repr(self.index),
             repr(self.module), repr(self.old_index), repr(self.old_uniq),
-            repr(self.pid), ','.join([repr(x) for x in self.free_vars]))
+            repr(self.pid), ','.join(repr(x) for x in self.free_vars))
 
     def __eq__(self, other):
         """Compare self with another object of the same type."""
@@ -601,7 +601,7 @@ def decode_integer_ext(stream):
 
 def decode_float_ext(stream):
     """Decode and return a float (represented by Erlang as a string)."""
-    return float(''.join([x for x in stream.read(31) if ord(x) > 0]))
+    return float(''.join(x for x in stream.read(31) if ord(x) > 0))
 
 
 def decode(stream, check_dist_tag=True):
@@ -725,7 +725,7 @@ def encode_long(data, stream):
         stream.write(chr(111))
         stream.write(pack('>L', len(byte_list)))
     stream.write(chr(sign))
-    stream.write(''.join([chr(x) for x in byte_list]))
+    stream.write(''.join(chr(x) for x in byte_list))
 
 
 def encode_number(data, stream):
