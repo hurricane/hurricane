@@ -4,18 +4,22 @@ import os
 import sys
 sys.path.append(
     os.path.join(
+        os.path.dirname(
             os.path.dirname(
-                os.path.dirname(
-                    os.path.abspath(__file__))),
+                os.path.abspath(__file__))),
     'drivers/python'))
-from erl_codec import Gateway, Atom, SocketWrapper
-import re
+from erl_codec import SocketWrapper
+from hurricane import Gateway, Message
 
 def main():
-    s = SocketWrapper('localhost', 3307)
-    gateway = Gateway(s)
+    gateway = Gateway(SocketWrapper('localhost', 3000))
     while True:
-        gateway.send((Atom('request'), Atom('time_server'), Atom('time_message'), None))
+        message = Message()
+        message.type = 'request'
+        message.destination = 'time_server'
+        message.tag = 0
+        message.data = None
+        gateway.send(message)
         print gateway.recv()
 
 if __name__ == '__main__':

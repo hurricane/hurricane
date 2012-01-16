@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 import sys
 sys.path.append(
     os.path.join(
@@ -8,8 +9,8 @@ sys.path.append(
             os.path.dirname(
                 os.path.abspath(__file__))),
     'drivers/python'))
-from erl_codec import Gateway, Atom
-import re
+from erl_codec import SocketWrapper, Atom
+from hurricane import Gateway, Message
 
 def parse_http_request(data):
     parsed_data = {}
@@ -31,27 +32,42 @@ def parse_http_request(data):
 
 def main():
     gateway = Gateway()
-    gateway.send((Atom('ready'), ))
+    gateway.send_ready_signal()
 
     while True:
-        r, source, message_type, message = gateway.recv()
-        request = parse_http_request(message)
+        http_request_message = gateway.recv()
+        request = parse_http_request(http_request_message.data)
+
+        http_response_message = Message()
+        http_response_message.type = 'response'
+        http_response_message.destination = \
+            http_request_message.destination
+        http_response_message.tag = http_request_message.tag
+
         normalized_path = re.sub(r'/*$', '', request['path'])
         if normalized_path == '/current_time':
-            time_message_type = Atom('time_message')
-            gateway.send((Atom('request'), Atom('time_server'), time_message_type, None))
-            gateway.send((Atom('request'), Atom('time_server'), time_message_type, None))
-            gateway.send((Atom('request'), Atom('time_server'), time_message_type, None))
-            gateway.send((Atom('request'), Atom('time_server'), time_message_type, None))
-            gateway.send((Atom('request'), Atom('time_server'), time_message_type, None))
-            r, time_src, time_message_type, time_message = gateway.recv()
-            r, time_src, time_message_type, time_message = gateway.recv()
-            r, time_src, time_message_type, time_message = gateway.recv()
-            r, time_src, time_message_type, time_message = gateway.recv()
-            r, time_src, time_message_type, time_message = gateway.recv()
-            gateway.send((Atom('response'), source, message_type, (200, [], time_message)))
+            time_request_message = Message()
+            time_request_message.type = 'request'
+            time_request_message.destination = 'time_server'
+            time_request_message.tag = 'time_message'
+            time_request_message.data = None
+            gateway.send(time_request_message)
+            gateway.send(time_request_message)
+            gateway.send(time_request_message)
+            gateway.send(time_request_message)
+            gateway.send(time_request_message)
+
+            time_response_message = gateway.recv()
+            time_response_message = gateway.recv()
+            time_response_message = gateway.recv()
+            time_response_message = gateway.recv()
+            time_response_message = gateway.recv()
+
+            http_response_message.data = (
+                200, [], time_response_message.data)
         else:
-            gateway.send((Atom('response'), source, message_type, (200, [], normalized_path)))
+            http_response_message.data = (200, [], normalized_path)
+        gateway.send(http_response_message)
 
 if __name__ == '__main__':
     main()

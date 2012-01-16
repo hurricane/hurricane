@@ -4,20 +4,25 @@ import os
 import sys
 sys.path.append(
     os.path.join(
+        os.path.dirname(
             os.path.dirname(
-                os.path.dirname(
-                    os.path.abspath(__file__))),
+                os.path.abspath(__file__))),
     'drivers/python'))
-from erl_codec import Gateway, Atom, SocketWrapper
+from erl_codec import SocketWrapper, Atom
+from hurricane import Gateway, Message
 from datetime import datetime
 
 def main():
-    gateway = Gateway(SocketWrapper('localhost', 3307))
-    gateway.send((Atom('register_with_group'), Atom('time_server')))
+    gateway = Gateway(SocketWrapper('localhost', 3000))
+    gateway.register_server('time_server')
     while True:
-        type, src, tag, data = gateway.recv()
-        if type.name == 'request':
-            gateway.send((Atom('response'), src, tag, str(datetime.now())))
+        request = gateway.recv()
+        response = Message()
+        response.type = 'response'
+        response.destination = request.destination
+        response.tag = request.tag
+        response.data = str(datetime.now())
+        gateway.send(response)
 
 if __name__ == '__main__':
     main()
