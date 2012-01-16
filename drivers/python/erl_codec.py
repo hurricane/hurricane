@@ -943,7 +943,7 @@ def encode(data, stream, send_magic_byte=True):
         encode(data.to_erlang(), stream, False)
 
 
-class Gateway:
+class Gateway(object):
     """
     Implements a class that can be used to conveniently interface with
     Hurricane to send/receive messages.
