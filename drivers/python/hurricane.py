@@ -16,7 +16,7 @@ class Message(object):
         self.destination = ''
         self.tag = ''
         self.data = ''
-        self.timeout = 10
+        self.timeout = 10000
 
     def __str__(self):
         """Return the human-readble representation."""
