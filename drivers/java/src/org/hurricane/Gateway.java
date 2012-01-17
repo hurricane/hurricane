@@ -86,25 +86,19 @@ public class Gateway extends org.hurricane.driver.Gateway {
      * @param message
      * @throws IOException
      */
-    public void send(final Object message) throws IOException {
+    public void send(final Object rawMessage) throws IOException {
         Object data = null;
 
-        if (message instanceof Message) {
-            Object destination = ((Message) message).getDestination();
+        if (rawMessage instanceof Message) {
+            Message message = (Message) rawMessage;
+            Object destination = message.getDestination();
             if (destination instanceof String) {
                 destination = new Atom((String) destination);
             }
-            data = new Tuple() {
-                {
-                    elements().add(((Message) message).getType());
-                    elements().add(((Message) message).getDestination());
-                    elements().add(((Message) message).getTag());
-                    elements().add(((Message) message).getData());
-                    elements().add(((Message) message).getTimeout());
-                }
-            };
+            data = new Tuple(new Atom(message.getType()), destination,
+                    message.getTag(), message.getData(), message.getTimeout());
         } else {
-            data = message;
+            data = rawMessage;
         }
 
         super.send(data);

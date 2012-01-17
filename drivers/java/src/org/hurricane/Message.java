@@ -27,7 +27,7 @@ public class Message {
     /**
      * The timeout of the message.
      */
-    private Integer mTimeout = 10;
+    private Integer mTimeout = 10000;
 
     /**
      * Getter for the message type.
@@ -117,5 +117,26 @@ public class Message {
      */
     public void setTimeout(Integer timeout) {
         mTimeout = timeout;
+    }
+
+    /**
+     * Return a readable representation of this object.
+     * 
+     * @return
+     */
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Message={");
+        builder.append("type=").append(getType());
+        builder.append(", ");
+        builder.append("destination=").append(getDestination());
+        builder.append(", ");
+        builder.append("tag=").append(getTag());
+        builder.append(", ");
+        builder.append("data=").append(getData());
+        builder.append(", ");
+        builder.append("timeout=").append(getTimeout());
+        builder.append("}");
+        return builder.toString();
     }
 }
