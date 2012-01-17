@@ -192,12 +192,7 @@ public class DecodeTest {
     @Test
     public void testDecodeSmallTuple() throws IOException {
         byte[] input = Utils.toBytes(131, 104, 2, 97, 42, 97, 69);
-        Tuple expected = new Tuple() {
-            {
-                elements().add(42);
-                elements().add(69);
-            }
-        };
+        Tuple expected = new Tuple(42, 69);
 
         StreamEmulator stream = new StreamEmulator(input);
         Object actual = Decoder.decode(stream);
@@ -249,7 +244,7 @@ public class DecodeTest {
             {
                 elements().add(42);
                 elements().add(69);
-                for (int i = 0; i < 279; i++) {
+                for (Integer i = 0; i < 279; i++) {
                     elements().add(1);
                 }
                 elements().add(69);
