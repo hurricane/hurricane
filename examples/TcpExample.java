@@ -1,22 +1,19 @@
-import org.hurricane.driver.Gateway;
-import org.hurricane.driver.SocketWrapper;
-import org.hurricane.driver.datatypes.Atom;
-import org.hurricane.driver.datatypes.Tuple;
-import org.hurricane.driver.datatypes.Nil;
+import org.hurricane.Gateway;
+import org.hurricane.Message;
 
 public class TcpExample {
     public static void main(String[] args) throws Exception {
-        Gateway gateway = new Gateway("localhost", 3307);
+        Gateway gateway = new Gateway("localhost", 3000);
 
-        Tuple sendMsg;
         while (true) {
-            sendMsg = new Tuple();
-            sendMsg.elements().add(new Atom("request"));
-            sendMsg.elements().add(new Atom("time_server"));
-            sendMsg.elements().add(new Atom("time_message"));
-            sendMsg.elements().add(new Nil());
-            gateway.send(sendMsg);
+            Message request = new Message();
+            request.setType("request");
+            request.setDestination("time_server");
+            request.setTag(0);
+            request.setData("");
 
+            System.out.println(request);
+            gateway.send(request);
             System.out.println(gateway.recv());
         }
     }

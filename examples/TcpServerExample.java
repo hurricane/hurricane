@@ -1,29 +1,25 @@
-import org.hurricane.driver.Gateway;
-import org.hurricane.driver.SocketWrapper;
-import org.hurricane.driver.datatypes.Atom;
-import org.hurricane.driver.datatypes.Tuple;
-import org.hurricane.driver.datatypes.Nil;
 import java.util.Date;
+
+import org.hurricane.Gateway;
+import org.hurricane.Message;
 
 public class TcpServerExample {
     public static void main(String[] args) throws Exception {
-        Gateway gateway = new Gateway("localhost", 3307);
-        Tuple regMsg = new Tuple();
-        regMsg.elements().add(new Atom("register_with_group"));
-        regMsg.elements().add(new Atom("time_server"));
-        gateway.send(regMsg);
+        Gateway gateway = new Gateway("localhost", 3000);
+        gateway.registerServer("time_server");
 
         while (true) {
-            Tuple recvMsg = (Tuple) gateway.recv();
-            Atom type = (Atom) recvMsg.elements().get(0);
-            if (type.getName().equals("request")) {
-                Tuple sendMsg = new Tuple();
-                sendMsg.elements().add(new Atom("response"));
-                sendMsg.elements().add(recvMsg.elements().get(1));
-                sendMsg.elements().add(recvMsg.elements().get(2));
-                sendMsg.elements().add(new Date().toString());
-                gateway.send(sendMsg);
-            }
+            Message request = gateway.recv();
+            System.out.println(request);
+
+            Message response = new Message();
+            response.setType("response");
+            response.setDestination(request.getDestination());
+            response.setTag(request.getTag());
+            response.setData(new Date().toString());
+
+            System.out.println(response);
+            gateway.send(response);
         }
     }
 }
