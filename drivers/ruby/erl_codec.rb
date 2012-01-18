@@ -834,14 +834,6 @@ def Erlang::encode_float(data, stream)
   stream.write([data].pack('G'))
 end
 
-# Encode an Erlang bit binary into the stream.
-def Erlang::encode_bit_binary(data, stream)
-  stream.write((77.chr()))
-  stream.write([data.data.size()].pack('N'))
-  stream.write(data.bits.chr())
-  stream.write(data.data)
-end
-
 # Encode an Erlang atom cache ref into the stream.
 def Erlang::encode_atom_cache_ref(data, stream)
   stream.write(82.chr())
@@ -1085,8 +1077,6 @@ def Erlang::encode(data, stream, send_magic_byte=true)
   data_type = data.class()
   if data_type.eql?(Float)
     Erlang::encode_float(data, stream)
-  elsif data_type.eql?(Erlang::BitBinary)
-    Erlang::encode_bit_binary(data, stream)
   elsif data_type.eql?(Erlang::AtomCacheRef)
     Erlang::encode_atom_cache_ref(data, stream)
   elsif data_type.eql?(Fixnum)
