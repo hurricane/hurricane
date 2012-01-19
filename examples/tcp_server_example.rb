@@ -7,27 +7,21 @@ $:.push(
     'ruby'
   )
 )
-require 'erl_codec'
 
-gateway = Erlang::Gateway.new(Erlang::SocketWrapper.new('localhost', 3307))
-gateway.send(
-  Erlang::Tuple.new(
-    [
-      Erlang::Atom.new('register_with_group'),
-      Erlang::Atom.new('time_server')
-    ]
-  )
-)
+require 'erl_codec'
+require 'hurricane'
+
+gateway = Hurricane::Gateway.new(
+  Erlang::SocketWrapper.new('localhost', 3307))
+gateway.register_server('time_server')
 loop do
-  message = gateway.recv()
-  gateway.send(
-    Erlang::Tuple.new(
-      [
-        Erlang::Atom.new('response'),
-        message.data[1],
-        message.data[2],
-        Time.new().inspect()
-      ]
-    )
-  )
+  request = gateway.do_recv()
+
+  response = Hurricane::Message.new()
+  response.type = 'response'
+  response.destination = request.destination
+  response.tag = request.tag
+  response.data = Time.new.inspect()
+
+  gateway.do_send(response)
 end

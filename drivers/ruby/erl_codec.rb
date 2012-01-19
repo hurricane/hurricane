@@ -1149,7 +1149,7 @@ class Erlang::Gateway
   end
 
   # Receive one message from Hurricane.
-  def recv()
+  def do_recv()
     message_len = @stream.read(4)
 
     if message_len.bytesize() < 4
@@ -1163,7 +1163,7 @@ class Erlang::Gateway
   end
 
   # Send one message to Hurricane.
-  def send(message)
+  def do_send(message)
     @stream_wrapper.clear()
     Erlang::encode(message, @stream_wrapper)
     @stream.write([@stream_wrapper.data.bytesize()].pack('N'))
