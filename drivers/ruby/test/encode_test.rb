@@ -3,6 +3,7 @@ $:.push(File.dirname(File.dirname(File.expand_path(__FILE__))))
 require 'test/unit'
 require 'erl_codec'
 
+# Runs all encode tests.
 class EncodeTest < Test::Unit::TestCase
 
   # Test that encoding a float to IEEE format works
@@ -17,7 +18,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a bit binary (space-compressed binary) works
+  # Test that encoding a bit binary (space-compressed binary) works.
   def test_encode_bit_binary()
     input = Erlang::BitBinary.new(4, "\303\213\036@")
     expected = [131, 77, 0, 0, 0, 4, 4, 195, 139, 30, 64]
@@ -29,7 +30,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding an atom cache reference works
+  # Test that encoding an atom cache reference works.
   def test_encode_atom_cache_ref()
     input = Erlang::AtomCacheRef.new(1)
     expected = [131, 82, 1]
@@ -41,7 +42,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a byte works
+  # Test that encoding a byte works.
   def test_encode_byte()
     input = 69
     expected = [131, 97, 69]
@@ -53,7 +54,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a negative integer works
+  # Test that encoding a negative integer works.
   def test_encode_negative_integer()
     input = -69
     expected = [131, 98, 255, 255, 255, 187]
@@ -65,7 +66,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that a large integer works
+  # Test that a large integer works.
   def test_encode_large_integer()
     input = \
       '75960403121632972742224425782080432361122790418394413080455142' \
@@ -85,7 +86,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a long integer works
+  # Test that encoding a long integer works.
   def test_encode_long_integer()
     input = 7446744073709551614
     expected = [131, 110, 8, 0, 254, 255, 179, 206, 71, 38, 88, 103]
@@ -97,7 +98,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that a huge integer works
+  # Test that a huge integer works.
   def test_encode_huge_integer()
     input = \
       '-6901876011047750013999709330765192556067125454126993873449155' \
@@ -169,7 +170,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding an atom works
+  # Test that encoding an atom works.
   def test_encode_atom()
     input = Erlang::Atom.new('ilia_atom')
     expected = [131, 115, 9, 105, 108, 105, 97, 95, 97, 116, 111, 109]
@@ -181,7 +182,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a long atom works
+  # Test that encoding a long atom works.
   def test_encode_long_atom()
     input = Erlang::Atom.new('ilia_atom_is_quite_a_long_atom')
     expected = [
@@ -196,7 +197,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a reference works
+  # Test that encoding a reference works.
   def test_encode_reference()
     input = Erlang::Reference.new(
       Erlang::Atom.new('nonode@nohost'), 69, 0)
@@ -211,7 +212,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a port identifier works
+  # Test that encoding a port identifier works.
   def test_encode_port()
     input = Erlang::Port.new(Erlang::Atom.new('nonode@nohost'), 69, 0)
     expected = [
@@ -225,7 +226,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a process identifier works
+  # Test that encoding a process identifier works.
   def test_encode_pid()
     input = Erlang::Pid.new(Erlang::Atom.new('nonode@nohost'), 69, 0, 0)
     expected = [
@@ -239,7 +240,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a small tuple works
+  # Test that encoding a small tuple works.
   def test_encode_small_tuple()
     input = Erlang::Tuple.new([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     expected = [
@@ -253,7 +254,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a large tuple works
+  # Test that encoding a large tuple works.
   def test_encode_large_tuple()
     input = Erlang::Tuple.new([
       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
@@ -368,7 +369,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a nil value works
+  # Test that encoding a nil value works.
   def test_encode_nil()
     input = nil
     expected = [131, 106]
@@ -380,7 +381,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a binary value works
+  # Test that encoding a binary value works.
   def test_encode_binary()
     input = Erlang::Binary.new('abcd')
     expected = [131, 109, 0, 0, 0, 4, 97, 98, 99, 100]
@@ -392,7 +393,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a string works
+  # Test that encoding a string works.
   def test_encode_string()
     input = 'now get your ass to mars'
     expected = [
@@ -406,7 +407,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a list with mixed data works
+  # Test that encoding a list with mixed data works.
   def test_encode_list()
     input = [69, 42, 'arnold']
     expected = [
@@ -420,7 +421,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a new reference works
+  # Test that encoding a new reference works.
   def test_encode_new_reference()
     input = Erlang::NewReference.new(
       Erlang::Atom.new('nonode@nohost'), 0, [0, 0, 94])
@@ -435,7 +436,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding an Erlang function works
+  # Test that encoding an Erlang function works.
   def test_encode_function()
     input = Erlang::Function.new(
       Erlang::Pid.new(Erlang::Atom.new('nonode@nohost'), 31, 0, 0),
@@ -452,7 +453,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding an Erlang lambda created at run-time works
+  # Test that encoding an Erlang lambda created at run-time works.
   def test_encode_new_function()
     input = Erlang::NewFunction.new(
       0, "\270\217\201\224 \221?\263[\311\226^\227a:\343", 1,
@@ -472,7 +473,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding an export specifier works
+  # Test that encoding an export specifier works.
   def test_encode_export()
     input = Erlang::Export.new(
       Erlang::Atom.new('erlang'), Erlang::Atom.new('self'), 0)
@@ -487,7 +488,7 @@ class EncodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that encoding a hash works
+  # Test that encoding a hash works.
   def test_encode_hash()
     input = {'three' => 3, 'two' => 2, 'one' => 1}
     expected = [

@@ -3,9 +3,10 @@ $:.push(File.dirname(File.dirname(File.expand_path(__FILE__))))
 require 'test/unit'
 require 'erl_codec'
 
+# Runs all decode tests.
 class DecodeTest < Test::Unit::TestCase
 
-  # Test that decoding an atom cache reference works
+  # Test that decoding an atom cache reference works.
   def test_decode_atom_cache_ref()
     input = [131, 82, 1]
     expected = Erlang::AtomCacheRef.new(1)
@@ -16,7 +17,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a byte works
+  # Test that decoding a byte works.
   def test_decode_byte()
     input = [131, 97, 123]
     expected = 123
@@ -27,7 +28,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding an integer works
+  # Test that decoding an integer works.
   def test_decode_integer()
     input = [131, 98, 0, 0, 4, 210]
     expected = 1234
@@ -38,7 +39,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a negative integer works
+  # Test that decoding a negative integer works.
   def test_decode_negative_integer()
     input = [131, 98, 255, 255, 255, 187]
     expected = -69
@@ -49,7 +50,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a float as a string works
+  # Test that decoding a float as a string works.
   def test_decode_float()
     input = [
       131, 99, 49, 46, 49, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48,
@@ -62,7 +63,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding an atom works
+  # Test that decoding an atom works.
   def test_decode_atom()
     input = [131, 100, 0, 9, 105, 108, 105, 97, 95, 97, 116, 111, 109]
     expected = Erlang::Atom.new('ilia_atom')
@@ -73,7 +74,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a reference works
+  # Test that decoding a reference works.
   def test_decode_reference()
     input = [
       131, 101, 100, 0, 9, 105, 108, 105, 97, 95, 97, 116, 111, 109, 1,
@@ -87,7 +88,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a port identifier works
+  # Test that decoding a port identifier works.
   def test_decode_port()
     input = [
       131, 102, 100, 0, 13, 110, 111, 110, 111, 100, 101, 64, 110, 111,
@@ -101,7 +102,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a process identifier works
+  # Test that decoding a process identifier works.
   def test_decode_pid()
     input = [
       131, 103, 100, 0, 13, 110, 111, 110, 111, 100, 101, 64, 110, 111,
@@ -115,7 +116,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a small tuple works
+  # Test that decoding a small tuple works.
   def test_decode_small_tuple()
     input = [131, 104, 2, 97, 42, 97, 69]
     expected = Erlang::Tuple.new([42, 69])
@@ -126,7 +127,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a large tuple works
+  # Test that decoding a large tuple works.
   def test_decode_large_tuple()
     input = [
       131, 105, 0, 0, 1, 26, 97, 42, 97, 69, 97, 1, 97, 1, 97, 1, 97, 1,
@@ -181,7 +182,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a nil/empty list works
+  # Test that decoding a nil/empty list works.
   def test_decode_nil()
     input = [131, 106]
     expected = nil
@@ -192,7 +193,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a string works
+  # Test that decoding a string works.
   def test_decode_string()
     input = [
       131, 107, 0, 24, 110, 111, 119, 32, 103, 101, 116, 32, 121, 111,
@@ -205,7 +206,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a list works
+  # Test that decoding a list works.
   def test_decode_list()
     input = [131, 108, 0, 0, 0, 3, 98, 0, 0, 4, 0, 97, 69, 97, 42, 106]
     expected = [1024, 69, 42]
@@ -216,7 +217,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a list with a trailer works
+  # Test that decoding a list with a trailer works.
   def test_decode_list_trailer()
     input = [
       131, 108, 0, 0, 0, 3, 98, 0, 0, 4, 0, 97, 69, 97, 42, 97, 1]
@@ -228,7 +229,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a binary works
+  # Test that decoding a binary works.
   def test_decode_binary()
     input = [
       131, 109, 0, 0, 0, 24, 110, 111, 119, 32, 103, 101, 116, 32, 121,
@@ -242,7 +243,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a big integer works
+  # Test that decoding a big integer works.
   def test_decode_small_big_integer()
     input = [131, 110, 5, 0, 5, 228, 183, 122, 4]
     expected = 19238740997
@@ -253,7 +254,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a huge integer works
+  # Test that decoding a huge integer works.
   def test_decode_large_big_integer()
     input = [
       131, 111, 0, 0, 1, 2, 0, 77, 166, 39, 216, 70, 78, 172, 93, 52,
@@ -294,7 +295,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a new reference works
+  # Test that decoding a new reference works.
   def test_decode_new_reference()
     input = [
       131, 114, 0, 3, 100, 0, 13, 110, 111, 110, 111, 100, 101, 64, 110,
@@ -308,7 +309,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a short atom works
+  # Test that decoding a short atom works.
   def test_decode_short_atom()
     input = [131, 115, 4, 97, 98, 99, 100]
     expected = Erlang::Atom.new('abcd')
@@ -319,7 +320,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a lambda created at run-time works
+  # Test that decoding a lambda created at run-time works.
   def test_decode_new_function()
     input = [
       131, 112, 0, 0, 0, 71, 0, 184, 143, 129, 148, 32, 145, 63, 179,
@@ -338,7 +339,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding an export specifier works
+  # Test that decoding an export specifier works.
   def test_decode_export()
     input = [
       131, 113, 100, 0, 6, 101, 114, 108, 97, 110, 103, 100, 0, 4, 115,
@@ -352,7 +353,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a function works
+  # Test that decoding a function works.
   def test_decode_function()
     input = [
       131, 117, 0, 0, 0, 0, 103, 100, 0, 13, 110, 111, 110, 111, 100,
@@ -368,7 +369,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test that decoding a bit binary (space-compressed binary) works
+  # Test that decoding a bit binary (space-compressed binary) works.
   def test_decode_bit_binary()
     input = [131, 77, 0, 0, 0, 4, 4, 195, 139, 30, 64]
     expected = Erlang::BitBinary.new(4, "\303\213\036@")
@@ -379,7 +380,7 @@ class DecodeTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Test decoding a float in the IEEE format works
+  # Test decoding a float in the IEEE format works.
   def test_decode_new_float()
     input = [131, 70, 1, 1, 1, 1, 1, 1, 1, 1]
     expected = 7.74860418548935e-304
