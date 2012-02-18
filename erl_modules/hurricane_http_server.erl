@@ -26,7 +26,6 @@ start(Options) ->
     ResponseTimeout = proplists:get_value(response_timeout, Options, 10000),
 
     HttpHandler = fun(Request) ->
-        io:format("~p~n", [Request]),
         HandlerPid = hurricane_utils:get_best_pid(HandlerGroup),
         SendData = [
             {listen_port, ListenPort},
