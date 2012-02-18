@@ -21,19 +21,21 @@ loop() ->
 start(Options) ->
     application:start(mochiweb),
     ListenPort = proplists:get_value(listen_port, Options, 80),
+    ServerName = proplists:get_value(server_name, Options, "localhost"),
     HandlerGroup = proplists:get_value(handler_group, Options, http_handler),
     ResponseTimeout = proplists:get_value(response_timeout, Options, 10000),
 
     HttpHandler = fun(Request) ->
+        io:format("~p~n", [Request]),
         HandlerPid = hurricane_utils:get_best_pid(HandlerGroup),
         SendData = [
+            {listen_port, ListenPort},
+            {server_name, ServerName},
             {scheme, Request:get(scheme)},
             {version, Request:get(version)},
             {method, Request:get(method)},
             {headers, mochiweb_headers:to_list(Request:get(headers))},
-            {raw_path, Request:get(raw_path)},
-            {path, Request:get(path)},
-            {params, Request:parse_qs()},
+            {path, Request:get(raw_path)},
             {body, Request:recv_body(Request:get(body_length))}
         ],
         HandlerPid ! {request, erlang:self(), http_request, SendData},
