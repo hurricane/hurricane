@@ -1,6 +1,6 @@
 """Unit tests for the Erlang encode/decode logic."""
 
-import erl_codec
+from hurricane import erl_codec
 from unittest import TestCase
 from cStringIO import StringIO
 

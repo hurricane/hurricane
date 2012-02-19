@@ -1,15 +1,7 @@
 #!/usr/bin/env python
 
-import os
-import sys
-sys.path.append(
-    os.path.join(
-        os.path.dirname(
-            os.path.dirname(
-                os.path.abspath(__file__))),
-    'drivers/python'))
-from erl_codec import SocketWrapper
 from hurricane import Gateway, Message
+from hurricane.erl_codec import SocketWrapper
 
 def main():
     gateway = Gateway(SocketWrapper('localhost', 3000))

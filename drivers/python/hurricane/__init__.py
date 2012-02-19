@@ -4,7 +4,7 @@ Convenience utilities for use with Hurricane.
 Provides facilities to more easily work with the messaging system.
 """
 
-import erl_codec
+from hurricane import erl_codec
 
 
 class Message(object):
