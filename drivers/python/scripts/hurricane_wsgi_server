@@ -20,6 +20,7 @@ def to_wsgi_dict(data):
     """
     wsgi_dict = {
         'SCRIPT_NAME': '',
+        'wsgi.input': StringIO(),
         'wsgi.errors': sys.stderr,
         'wsgi.multiprocess': False,
         'wsgi.multithread': False,
@@ -57,7 +58,8 @@ def to_wsgi_dict(data):
                     header_key.replace('-', '_').upper())
                 wsgi_dict[header_name] = header_value
         elif key.name == 'body' and isinstance(value, Binary):
-            wsgi_dict['wsgi.input'] = StringIO(value.data)
+            wsgi_dict['wsgi.input'].write(value.data)
+            wsgi_dict['wsgi.input'].seek(0)
 
     return wsgi_dict
 
@@ -157,7 +159,7 @@ def main():
 
         meta = WsgiMeta()
         result = app(wsgienv, meta)
-        if isinstance(result, GeneratorType):
+        if not isinstance(result, basestring):
             result = ''.join(result)
         httpresp.data = (meta.code, meta.headers, result)
 
