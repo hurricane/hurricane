@@ -1,10 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'uri'
-require 'date'
 require 'stringio'
 require 'hurricane'
-require 'optparse'
 
 # Hurricane Rack Handler
 module Rack
@@ -50,21 +48,16 @@ module Rack
           end
           rackenv.default = nil
 
-          result = app.call(rackenv)
-          code = result[0]
-          headers = result[1]
+          code, headers, data = app.call(rackenv)
           body = StringIO.new()
-          result[2].each do |chunk|
+          data.each do |chunk|
             body << chunk
           end
           httpresp.data = Erlang::Tuple.new([code, headers, body.string()])
           body.close()
-
-          puts "[#{Time.new().strftime('%Y-%m-%d %H:%M:%S.%6N')}] " \
-               "#{rackenv['SERVER_PROTOCOL']} " \
-               "#{rackenv['REQUEST_METHOD']} " \
-               "#{rackenv['REQUEST_URI']} " \
-               "#{result[0]}"
+          if data.respond_to?(:close)
+            data.close()
+          end
 
           gateway.do_send(httpresp)
         end
