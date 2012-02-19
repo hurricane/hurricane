@@ -28,7 +28,7 @@ def to_wsgi_dict(data):
         'wsgi.version': (1, 0)}
     for key, value in data:
         if key.name == 'listen_port':
-            wsgi_dict['SERVER_PORT'] = value
+            wsgi_dict['SERVER_PORT'] = str(value)
         elif key.name == 'server_name':
             wsgi_dict['SERVER_NAME'] = value
         elif key.name == 'scheme':
