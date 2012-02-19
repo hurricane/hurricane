@@ -1,5 +1,3 @@
-$:.push(File.dirname(File.dirname(File.expand_path(__FILE__))))
-
 require 'test/unit'
 require 'erl_codec'
 

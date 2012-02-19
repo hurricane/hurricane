@@ -1,5 +1,3 @@
-$:.push(File.dirname(File.expand_path(__FILE__)))
-
 require 'erl_codec'
 
 # Defines the module where all Hurricane-related logic will go.
