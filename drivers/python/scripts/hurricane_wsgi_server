@@ -110,14 +110,20 @@ def parse_args():
         '--host',
         dest='host',
         type='string',
-        help='the hurricane host (default: 127.0.0.1)',
+        help='the Hurricane host (default: 127.0.0.1)',
         default='127.0.0.1')
     parser.add_option(
         '--port',
         dest='port',
         type='int',
-        help='the hurricane host (default: 3000)',
+        help='the Hurricane host (default: 3000)',
         default=3000)
+    parser.add_option(
+        '--process-group',
+        dest='process_group',
+        type='string',
+        help='the Hurricane process group to join (default: http_handler)',
+        default='http_handler')
     (options, _args) = parser.parse_args()
     return options
 
@@ -134,7 +140,7 @@ def main():
 
     if args.type == 'tcp':
         gateway = Gateway(SocketWrapper(args.host, args.port))
-        gateway.register_server('http_handler')
+        gateway.register_server(args.process_group)
     else:
         gateway = Gateway()
         gateway.send_ready_signal()

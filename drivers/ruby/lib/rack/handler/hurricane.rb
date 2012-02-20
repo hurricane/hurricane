@@ -13,6 +13,7 @@ module Rack
         options[:HurricaneType] ||= 'tcp'
         options[:HurricaneHost] ||= '127.0.0.1'
         options[:HurricanePort] ||= 3000
+        options[:HurricaneProcessGroup] ||= 'http_handler'
 
         if options[:HurricaneType].eql?('tcp')
           gateway = ::Hurricane::Gateway.new(
@@ -20,7 +21,7 @@ module Rack
               options[:HurricaneHost], options[:HurricanePort]
             )
           )
-          gateway.register_server('http_handler')
+          gateway.register_server(options[:HurricaneProcessGroup])
         else
           gateway = ::Hurricane::Gateway.new()
           gateway.send_ready_signal()
@@ -72,6 +73,8 @@ module Rack
             'the Hurricane host (default: 127.0.0.1)',
           'HurricanePort=PORT' =>
             'the Hurricane port (default: 3000)',
+          'HurricaneProcessGroup=GROUP' =>
+            'the Hurricane process group to join (default: http_handler)',
         }
       end
 
