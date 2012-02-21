@@ -1,7 +1,7 @@
 Hurricane
 =========
 
-See the full documentation here: gethurricane.org
+See the full documentation here: http://gethurricane.org
 
 Hurricane is a scalable messaging system implemented in Erlang. It is
 designed from the ground-up for fast transient messaging,
