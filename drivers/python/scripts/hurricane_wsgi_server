@@ -167,7 +167,7 @@ def main():
         result = app(wsgienv, meta)
         if not isinstance(result, basestring):
             result = ''.join(result)
-        httpresp.data = (meta.code, meta.headers, result)
+        httpresp.data = (meta.code, meta.headers, Binary(result))
 
         print '[%s] %s %s %s %s' % (
             datetime.now(),

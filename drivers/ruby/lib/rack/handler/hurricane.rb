@@ -54,7 +54,9 @@ module Rack
           data.each do |chunk|
             body << chunk
           end
-          httpresp.data = Erlang::Tuple.new([code, headers, body.string()])
+          httpresp.data = Erlang::Tuple.new(
+            [code, headers, Erlang::Binary.new(body.string())]
+          )
           body.close()
           if data.respond_to?(:close)
             data.close()
