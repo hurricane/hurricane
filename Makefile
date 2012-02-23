@@ -1,4 +1,4 @@
-ERLC=erlc -v -Wall -Werror +o3 +native -o ebin
+ERLC=erlc -v -Wall -Werror +o3 -o ebin
 
 all: ebin/hurricane.beam ebin/hurricane_config_server.beam ebin/hurricane_distribution_manager.beam ebin/hurricane_http_server.beam ebin/hurricane_log_server.beam ebin/hurricane_message_delegate.beam ebin/hurricane_stdio_server.beam ebin/hurricane_supervisor.beam ebin/hurricane_tcp_server.beam ebin/hurricane_utils.beam
 
