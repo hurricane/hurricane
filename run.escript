@@ -19,25 +19,11 @@ main(Args) ->
     ConfigPath = lists:nth(1, Args),
     Config = erlang:apply(LoadConfigFun, [ConfigPath]),
 
-    Modules = proplists:get_value(compile_modules, Config, []),
-    lists:map(
-        fun(Filepath) ->
-            {ok, ModuleName} = compile:file(Filepath),
-            {ok, ModuleName, Binary} = compile:file(
-                Filepath, [binary]
-            ),
-            {module, ModuleName} = code:load_binary(
-                ModuleName, Filepath, Binary
-            )
-        end,
-        Modules
-    ),
-    BinaryModules = proplists:get_value(load_modules, Config, []),
     lists:map(
         fun(Filepath) ->
             code:load_abs(Filepath)
         end,
-        BinaryModules
+        proplists:get_value(load_modules, Config, [])
     ),
     code:add_pathsz(proplists:get_value(add_code_paths, Config, [])),
 
