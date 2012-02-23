@@ -32,6 +32,13 @@ main(Args) ->
         end,
         Modules
     ),
+    BinaryModules = proplists:get_value(load_modules, Config, []),
+    lists:map(
+        fun(Filepath) ->
+            code:load_abs(Filepath)
+        end,
+        BinaryModules
+    ),
     code:add_pathsz(proplists:get_value(add_code_paths, Config, [])),
 
     os:cmd(filename:join(code:root_dir(), "bin/epmd") ++ " -daemon"),
