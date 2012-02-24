@@ -3,12 +3,69 @@
 
 -module(hurricane_log_server).
 
+-behaviour(gen_server).
+
 -export([start/1, log/2, log/3]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(
     LOG_LEVELS,
     [emergency, alert, critical, error, warning, notice, info, debug]
 ).
+
+%% Called to initialize the process.
+init(_Args) ->
+    LogLevel = hurricane_config_server:get_config(log_level),
+    LoggableLevels = get_loggable_levels(LogLevel),
+    {ok, LoggableLevels}.
+
+%% Used to handle direct, synchronous requests.
+handle_call(_Request, _From, State) ->
+    {reply, ok, State}.
+
+%% Log asynchronous log messages that need to be formatted.
+handle_cast({log, Timestamp, Level, FormatStr, FormatArgs}, LoggableLevels) ->
+    case is_loggable(LoggableLevels, Level) of
+        true ->
+            Message = io_lib:format(FormatStr, FormatArgs),
+            io:format(
+                standard_error,
+                "[~s] [~s] ~s~n",
+                [Timestamp, Level, Message]
+            );
+        _ ->
+            ok
+    end,
+    {noreply, LoggableLevels};
+
+%% Log asynchronous log strings.
+handle_cast({log, Timestamp, Level, Message}, LoggableLevels) ->
+    case is_loggable(LoggableLevels, Level) of
+        true ->
+            io:format(
+                standard_error,
+                "[~s] [~s] ~s~n",
+                [Timestamp, Level, Message]
+            );
+        _ -> ok
+    end,
+    {noreply, LoggableLevels};
+
+%% Handle all other asynchronous messages.
+handle_cast(_Request, State) ->
+    {noreply, State}.
+
+%% Used to handle direct process messages.
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+%% Called before exiting--clean up happens here.
+terminate(_Reason, _State) ->
+    ok.
+
+%% Called to upgrade the currently running code.
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
 
 %% Formats the current time in the format YYYY:mm:dd HH:MM:SS.
 format_local_time() ->
@@ -20,12 +77,18 @@ format_local_time() ->
 
 %% Convenience function to log an already-formatted message.
 log(Level, Message) ->
-    ?MODULE ! {log, format_local_time(), Level, Message}.
+    gen_server:cast(
+        ?MODULE,
+        {log, format_local_time(), Level, Message}
+    ).
 
 %% Convenience function to log a message that needs to be formatted
 %% (formatting is handled by io_lib).
 log(Level, FormatStr, FormatArgs) ->
-    ?MODULE ! {log, format_local_time(), Level, FormatStr, FormatArgs}.
+    gen_server:cast(
+        ?MODULE,
+        {log, format_local_time(), Level, FormatStr, FormatArgs}
+    ).
 
 %% Gets all log levels that are loggable (the log levels as defined in
 %% this module are sorted, so this function scans until it hits the
@@ -49,37 +112,6 @@ is_loggable(LoggableLevels, MessageLevel) ->
     ),
     erlang:length(RemainingLevels) > 0.
 
-%% The service loop runs forever with its defined loggable levels. As
-%% messages are received, they are inspected for loggability and
-%% possibly logged.
-loop(LoggableLevels) ->
-    receive
-        {log, Timestamp, Level, FormatStr, FormatArgs} ->
-            case is_loggable(LoggableLevels, Level) of
-                true ->
-                    Message = io_lib:format(FormatStr, FormatArgs),
-                    io:format(
-                        standard_error,
-                        "[~s] [~s] ~s~n",
-                        [Timestamp, Level, Message]
-                    );
-                _ ->
-                    ok
-            end;
-        Other ->
-            io:format(
-                standard_error,
-                "log server got unexpected message: ~p~n",
-                [Other]
-            )
-    end,
-    loop(LoggableLevels).
-
-%% Registers the process under a convenience name, gets the configured
-%% log level, computes all loggable log levels, and starts the service
-%% loop.
-start(_Options) ->
-    erlang:register(?MODULE, erlang:self()),
-    LogLevel = hurricane_config_server:get_config(log_level),
-    LoggableLevels = get_loggable_levels(LogLevel),
-    loop(LoggableLevels).
+%% Register the log process and run it.
+start(Args) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
