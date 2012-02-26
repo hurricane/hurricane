@@ -5,28 +5,22 @@
 
 -module(hurricane_http_server).
 
--include_lib("kernel/include/file.hrl").
+-behaviour(gen_server).
 
 -export([start/1]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
-%% Sets up an infinite loop for the managing process so that it never
-%% has to exit (and thus be restarted by the supervisor).
-loop() ->
-    receive
-        _ -> ok
-    end,
-    loop().
+-include_lib("kernel/include/file.hrl").
 
 %% Starts Mochiweb listening on the port specified in the config (80 is
 %% the default). Defines what function Mochiweb should call back to.
-%% Enters the service loop.
-start(Options) ->
+init(Args) ->
     application:start(mochiweb),
-    ListenPort = proplists:get_value(listen_port, Options, 80),
-    ServerName = proplists:get_value(server_name, Options, "localhost"),
-    HandlerGroup = proplists:get_value(handler_group, Options, http_handler),
-    ResponseTimeout = proplists:get_value(response_timeout, Options, 10000),
-    StaticDir = proplists:get_value(static_dir, Options, undefined),
+    ListenPort = proplists:get_value(listen_port, Args, 80),
+    ServerName = proplists:get_value(server_name, Args, "localhost"),
+    HandlerGroup = proplists:get_value(handler_group, Args, http_handler),
+    ResponseTimeout = proplists:get_value(response_timeout, Args, 10000),
+    StaticDir = proplists:get_value(static_dir, Args, undefined),
 
     HttpHandler = fun(Request) ->
         case StaticDir of
@@ -60,12 +54,36 @@ start(Options) ->
 
     mochiweb_http:start(
         [
-            {name, proplists:get_value(name, Options, default)},
+            {name, proplists:get_value(name, Args, default)},
             {loop, HttpHandler},
             {port, ListenPort}
         ]
     ),
-    loop().
+    {ok, []}.
+
+%% Used to handle direct, synchronous requests.
+handle_call(_Request, _From, State) ->
+    {reply, ok, State}.
+
+%% Handle all other asynchronous messages.
+handle_cast(_Request, State) ->
+    {noreply, State}.
+
+%% Used to handle direct process messages.
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+%% Called before exiting--clean up happens here.
+terminate(_Reason, _State) ->
+    ok.
+
+%% Called to upgrade the currently running code.
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%% Starts the http process gen server.
+start(Args) ->
+    gen_server:start_link(?MODULE, Args, []).
 
 %% Serve the specified file with the given extra headers. Return true on
 %% success, false on failure. Guesses the mime type of the file, falling

@@ -41,6 +41,12 @@ start_module(Module, Function, Args) ->
 %% Runs forever, restarting any processes that exit.
 loop() ->
     receive
+        {'EXIT', Pid, normal} ->
+            hurricane_log_server:log(
+                info,
+                "~p exited normally, supervisor will not restart.",
+                [Pid]
+            );
         {'EXIT', Pid, Reason} ->
             hurricane_log_server:log(
                 error,

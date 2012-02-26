@@ -9,6 +9,7 @@
 %% defined in the config.
 start(Options) ->
     application:start(sasl),
+    pg2:start_link(),
     hurricane_config_server:start(Options),
     hurricane_log_server:start([]),
     erlang:spawn_link(hurricane_supervisor, start, [[]]).
