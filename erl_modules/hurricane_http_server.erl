@@ -35,6 +35,7 @@ init(Args) ->
                 SendData = [
                     {listen_port, ListenPort},
                     {server_name, ServerName},
+                    {peer, Request:get(peer)},
                     {scheme, Request:get(scheme)},
                     {version, Request:get(version)},
                     {method, Request:get(method)},
